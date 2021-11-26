@@ -84,10 +84,16 @@ using namespace std;
  * Structrs
  */
 
-typedef struct		s_map{
+typedef struct		s_piece{
 	int				x;
 	int				y;
-	int			**map;
+	int				g_x;
+	int				g_y;
+	int				value;
+}					t_piece;
+
+typedef struct		s_map{
+	t_piece			*pieces;
 }					t_map;
 
 typedef struct		s_queue{
@@ -134,6 +140,7 @@ class		IDA_star{
 	int		**map_goal;
 	int		**map_copy;
 
+
 	/* Methods */
 
 	/*
@@ -154,40 +161,33 @@ class		A_star{
 class		Greedy{
 	/* Constructors */
 	Greedy(void);
+	
 	/* Destructors */
 	~Greedy(void);
 };
 
 class		Data{
 	public:
-		/*
-		 * Constructors
-		 */
+		/* Constructors */
 		Data(void);
-		/*
-		 * Destructors
-		 */
+		
+		/* Destructors */
 		~Data(void);
-		/*
-		 * Variables
-		 */
+		
+		/* Attributes */
 		int			flags;
 		FILE		*fd;
 		t_file		*file;
 		int			size;
 		int			**map_start;
 		int			**map_goal;
+		t_map		*map;
 
-		/*
-		 * Functions
-		 */
+		/* Methods */
+		int		goal_found(int **map_start, int **map_goal); // not implemented yet
 		void	add_flag(int flag);
 		int		flag_exists(int flag);
 		int		open_file(char *file);
-		int		read_file(void);
-		void	push_line(char *line);
-		void	print_line(void); // for test
-
 };
 
 /*

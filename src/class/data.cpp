@@ -23,6 +23,7 @@ Data::Data(){
 	size 		= 0;
 	map_start 	= NULL;
 	map_goal 	= NULL;
+	map			= NULL;
 }
 /* Destructor */
 Data::~Data(){
@@ -49,54 +50,54 @@ int		Data::open_file(char *name){
 
 
 /* Push a new line to the file */
-void	Data::push_line(char *line){
-	t_file *new_line;
-	t_file *tmp;
+// void	Data::push_line(char *line){
+// 	t_file *new_line;
+// 	t_file *tmp;
 
-	if (!(new_line = (t_file *)malloc(sizeof(t_file))))
-		throw (MyException("malloc", ""));
-	if (!(new_line->line = strdup(line))){
-		free(new_line);
-		throw (MyException("malloc", ""));
-	}
-	// new_line->line = line;
-	new_line->next = NULL;
-	if (!this->file)
-		this->file = new_line;
-	else{
-		tmp = this->file;
-		while (tmp->next)
-			tmp = tmp->next;
-		tmp->next = new_line;
-	}
-}
+// 	if (!(new_line = (t_file *)malloc(sizeof(t_file))))
+// 		throw (MyException("malloc", ""));
+// 	if (!(new_line->line = strdup(line))){
+// 		free(new_line);
+// 		throw (MyException("malloc", ""));
+// 	}
+// 	// new_line->line = line;
+// 	new_line->next = NULL;
+// 	if (!this->file)
+// 		this->file = new_line;
+// 	else{
+// 		tmp = this->file;
+// 		while (tmp->next)
+// 			tmp = tmp->next;
+// 		tmp->next = new_line;
+// 	}
+// }
 
-/* Read the file */
-int		Data::read_file(void){
-	size_t		len = 0;
-	char	*line = NULL;
-	int		ret = 1;
+// /* Read the file */
+// int		Data::read_file(void){
+// 	size_t		len = 0;
+// 	char	*line = NULL;
+// 	int		ret = 1;
 
-	while (ret > 0){
-		ret = getline(&line, &len, fd);
-		push_line(line);
-		free(line);
-		line = NULL;
-	}
-	return (_SUCCESS);
-}
+// 	while (ret > 0){
+// 		ret = getline(&line, &len, fd);
+// 		push_line(line);
+// 		free(line);
+// 		line = NULL;
+// 	}
+// 	return (_SUCCESS);
+// }
 
 
-/* print the file for test */
-void	Data::print_line(void){
-	t_file *tmp;
+// /* print the file for test */
+// void	Data::print_line(void){
+// 	t_file *tmp;
 
-	tmp = this->file;
-	while (tmp){
-		printf("%s", tmp->line);
-		tmp = tmp->next;
-	}
-}
+// 	tmp = this->file;
+// 	while (tmp){
+// 		printf("%s", tmp->line);
+// 		tmp = tmp->next;
+// 	}
+// }
 
 
 
