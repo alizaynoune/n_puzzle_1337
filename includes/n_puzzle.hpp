@@ -136,8 +136,8 @@ class		IDA_star{
 	int		move;
 	int		x;
 	int		y;
-	int		**map_start;
-	int		**map_goal;
+	// int		**map_start;
+	// int		**map_goal;
 	int		**map_copy;
 
 
@@ -179,9 +179,10 @@ class		Data{
 		FILE		*fd;
 		t_file		*file;
 		int			size;
-		int			**map_start;
-		int			**map_goal;
+		// int			**map_start;
+		// int			**map_goal;
 		t_map		*map;
+		// t_map		*map_copy;
 
 		/* Methods */
 		int		goal_found(int **map_start, int **map_goal); // not implemented yet
@@ -216,7 +217,7 @@ class	MyException : public exception{
 // int		parse_map(char *file, Data *data);
 // int		parse_goal_state(char *file, Data *data);
 void		ft_free(Data *data);
-
+void        free_map(t_map *map, int size);
 
 
 

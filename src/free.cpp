@@ -1,5 +1,17 @@
 #include "n_puzzle.hpp"
 
+/* free map */
+void        free_map(t_map *map, int size){
+    if (map){
+        for (int i = 0; i < size; i++){
+            if (map[i].pieces)
+                free(map[i].pieces);
+        }
+        free(map);
+    }
+}
+
+
 /* free all data */
 void       ft_free(Data *data){
     /* close file descriptor */
@@ -15,16 +27,14 @@ void       ft_free(Data *data){
             free(tmp);
         }
     }
-    /* free map start */
-    if (data->map_start){
-        for (int i = 0; i < data->size; i++)
-            free(data->map_start[i]);
-        free(data->map_start);
-    }
-    /* free map goal */
-    if (data->map_goal){
-        for (int i = 0; i < data->size; i++)
-            free(data->map_goal[i]);
-        free(data->map_goal);
-    }
+    /* free map */
+    // if (data->map){
+    //     // free_table(data->map, data->size);
+    //     for (int i = 0; i < data->size; i++){
+    //         if (data->map[i].pieces)
+    //             free(data->map[i].pieces);
+    //     }
+    //     free(data->map);
+    // }
+    free_map(data->map, data->size);
 }
