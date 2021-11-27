@@ -138,7 +138,7 @@ static int parse_file(Data *data)
 				if (count_nbr != 1 || atoi(line) < 3)
 				{
 					free(line);
-					throw(MyException("Invalid map size ", ""));
+					throw(MyException("Invalid puzzle size ", ""));
 				}
 				data->size = atoi(line);
 				if (alloc_map(data) == _FAILURE)
@@ -152,7 +152,7 @@ static int parse_file(Data *data)
 				if (count_nbr != data->size)
 				{
 					free(line);
-					throw(MyException("lenght of lines is not equal to map size", ""));
+					throw(MyException("lenght of lines is not equal to puzzle size", ""));
 				}
 				push_line_to_map(data, line, count_line);
 				count_line++;
@@ -173,8 +173,6 @@ static int goal_piece(int size, t_piece *piece, t_map *map_copy)
 	int y = 0;
 	int start = 0;
 	int end = size - 1;
-	// t_map *map = data->map;
-	// t_piece *tmp = NULL;
 
 	for (int i = 0; i < (size * size); i++)
 	{
@@ -239,7 +237,7 @@ static int validation_map(Data *data)
 		if (goal_piece(data->size, &data->map[i / data->size].pieces[i % data->size], map) == _FAILURE)
 		{
 			free_map(map, data->size);
-			throw(MyException("Invalid map", ""));
+			throw(MyException("Invalid puzzle", ""));
 		}
 	}
 	free_map(map, data->size);
@@ -247,26 +245,73 @@ static int validation_map(Data *data)
 	return (_SUCCESS);
 }
 
+static int help_inversions(Data *data, int value, int action, int start, int end, int x, int y, int i)
+{
+	int count = 0;
+	while (i < (data->size * data->size))
+	{
+		if (action == _UP && x < end)
+			x++;
+		else if (action == _DOWN && x > start)
+			x--;
+		else if (action == _RIGHT && y < end)
+			y++;
+		else if (action == _LEFT && y > start)
+			y--;
+		if (action == _LEFT && y == start)
+		{
+			action = _UP;
+			start++;
+			end--;
+			x = start;
+			y = start;
+		}
+		action == _UP &&x == end ? action = _RIGHT : 0;
+		action == _DOWN &&x == start ? action = _LEFT : 0;
+		action == _RIGHT &&y == end ? action = _DOWN : 0;
+
+		if (data->map[y].pieces[x].value && data->map[y].pieces[x].value < value)
+			count++;
+		i++;
+	}
+	return (count);
+}
+
 /* check if map is solvable */
 static int count_inversions(Data *data)
 {
-	int count = 0;
+	int 	count = 0;
+	int		action = _UP;
+	int		start = 0;
+	int		end = data->size - 1;
+	int		x = 0;
+	int		y = 0;
 
-	// for (int i = 0; i < (data->size * data->size); i++)
-	// {
-	// 	if (data->map_start[i / data->size][i % data->size])
-	// 	{
-	// 		for (int j = i + 1; j < (data->size * data->size); j++)
-	// 		{
-	// 			if (data->map_start[j / data->size][j % data->size] && data->map_start[i / data->size][i % data->size] > data->map_start[j / data->size][j % data->size])
-	// 			{
-	// 				count++;
-	// 				printf("[%d %d]\n", data->map_start[i / data->size][i % data->size], data->map_start[j / data->size][j % data->size]);
-	// 			}
-	// 		}
-	// 	}
-	// }
-	return (count % 2);
+	for (int i = 0; i < (data->size * data->size); i++)
+	{
+		if (data->map[y].pieces[x].value)
+			count += help_inversions(data, data->map[y].pieces[x].value, action, start, end, x, y, i + 1);
+		if (action == _UP && x < end)
+			x++;
+		else if (action == _DOWN && x > start)
+			x--;
+		else if (action == _RIGHT && y < end)
+			y++;
+		else if (action == _LEFT && y > start)
+			y--;
+		if (action == _LEFT && y == start)
+		{
+			action = _UP;
+			start++;
+			end--;
+			x = start;
+			y = start;
+		}
+		action == _UP &&x == end ? action = _RIGHT : 0;
+		action == _DOWN &&x == start ? action = _LEFT : 0;
+		action == _RIGHT &&y == end ? action = _DOWN : 0;
+	}
+	return (count % 2 ? _FAILURE : _SUCCESS);
 }
 
 int main(int ac, char **av)
@@ -281,6 +326,9 @@ int main(int ac, char **av)
 		parse_flags(av, ac, data);
 		parse_file(data);
 		validation_map(data);
+		// printf("%d\n", count_inversions(data));
+		if (count_inversions(data) == _FAILURE)
+			throw(MyException("This puzzle is unsolvable", ""));
 		// goal_piece(data, data->size, NULL);
 		// printf("===>%d\n", count_inversions(data));
 	}
