@@ -246,8 +246,10 @@ static int validation_map(Data *data)
 		}
 		if (data->map[i / data->size].pieces[i % data->size].value == 0)
 		{
-			data->y_blank = i / data->size;
-			data->x_blank = i % data->size;
+			// data->y_blank = i / data->size;
+			// data->x_blank = i % data->size;
+			data->blank[0] = i / data->size;
+			data->blank[1] = i % data->size;
 			// printf("%d\n", data->map[i / data->size].pieces[i % data->size].value);
 		}
 	}
@@ -328,6 +330,7 @@ static int count_inversions(Data *data)
 int main(int ac, char **av)
 {
 	Data *data;
+	Greedy *greedy;
 
 	try
 	{
@@ -345,23 +348,29 @@ int main(int ac, char **av)
 		// goal_piece(data, data->size, NULL);
 		// printf("===>%d\n", count_inversions(data));
 		data->print_map(data->map);
-		printf("%lu\n", data->manhattan_distance(data->map));
-		data->copy_map(data->map, data->map_copy);
-		data->move_piece(data->map_copy, data->x_blank, data->y_blank, _UP);
-		data->print_map(data->map_copy);
-		printf("%lu\n", data->manhattan_distance(data->map_copy));
-		data->copy_map(data->map, data->map_copy);
-		data->move_piece(data->map_copy, data->x_blank, data->y_blank, _DOWN);
-		data->print_map(data->map_copy);
-		printf("%lu\n", data->manhattan_distance(data->map_copy));
-		data->copy_map(data->map, data->map_copy);
-		data->move_piece(data->map_copy, data->x_blank, data->y_blank, _LEFT);
-		data->print_map(data->map_copy);
-		printf("%lu\n", data->manhattan_distance(data->map_copy));
-		data->copy_map(data->map, data->map_copy);
-		data->move_piece(data->map_copy, data->x_blank, data->y_blank, _RIGHT);
-		data->print_map(data->map_copy);
-		printf("%lu\n", data->manhattan_distance(data->map_copy));
+		printf("\n");
+		// printf("%lu\n", data->manhattan_distance(data->map));
+		// data->copy_map(data->map, data->map_copy);
+		// data->move_piece(data->map_copy, data->blank, _UP);
+		// data->print_map(data->map_copy);
+		// printf("%lu\n", data->manhattan_distance(data->map_copy));
+		// data->copy_map(data->map, data->map_copy);
+		// data->move_piece(data->map_copy, data->blank, _DOWN);
+		// data->print_map(data->map_copy);
+		// printf("%lu\n", data->manhattan_distance(data->map_copy));
+		// data->copy_map(data->map, data->map_copy);
+		// data->move_piece(data->map_copy, data->blank, _LEFT);
+		// data->print_map(data->map_copy);
+		// printf("%lu\n", data->manhattan_distance(data->map_copy));
+		// data->copy_map(data->map, data->map_copy);
+		// data->move_piece(data->map_copy, data->blank, _RIGHT);
+		// data->print_map(data->map_copy);
+		// printf("%lu\n", data->manhattan_distance(data->map_copy));
+		// printf("%d\n", _LEFT ^ _LEFT);
+		greedy = new Greedy();
+		greedy->init_childrent(data, data->map, greedy->open_list, 0);
+		
+		greedy->print_queue(data);
 
 	}
 	catch (MyException &e)

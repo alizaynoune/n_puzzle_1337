@@ -25,10 +25,6 @@ IDA_star::~IDA_star(){
 
 
 /* create childs */
-int         IDA_star::init_child(t_map *map, t_queue *queue, int old_action){
 
-
-    return (_SUCCESS);
-}
 
 

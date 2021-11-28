@@ -64,41 +64,41 @@ void Data::copy_map(t_map *src, t_map *dest)
 }
 
 /* move the blank */
-int 	Data::move_piece(t_map *map, int x_blank, int y_blank, int action)
+int 	Data::move_piece(t_map *map, int blank[2], int action)
 {
-	int		g_x_blank =  map[y_blank].pieces[x_blank].g_x;
-	int		g_y_blank = map[y_blank].pieces[x_blank].g_y;
+	int		g_x_blank =  map[blank[0]].pieces[blank[1]].g_x;
+	int		g_y_blank = map[blank[0]].pieces[blank[1]].g_y;
 
-	if (action == _UP && y_blank)
+	if (action == _UP && blank[1])
 	{
-		memcpy(&map[y_blank].pieces[x_blank], &map[y_blank - 1].pieces[x_blank], sizeof(t_piece));
-		map[y_blank - 1].pieces[x_blank].g_x = g_x_blank;
-		map[y_blank - 1].pieces[x_blank].g_y = g_y_blank;
-		map[y_blank - 1].pieces[x_blank].value = 0;
+		memcpy(&map[blank[0]].pieces[blank[1]], &map[blank[0] - 1].pieces[blank[1]], sizeof(t_piece));
+		map[blank[0] - 1].pieces[blank[1]].g_x = g_x_blank;
+		map[blank[0] - 1].pieces[blank[1]].g_y = g_y_blank;
+		map[blank[0] - 1].pieces[blank[1]].value = 0;
 		return (_SUCCESS);
 	}
-	else if (action == _DOWN && y_blank < this->size - 1)
+	else if (action == _DOWN && blank[0] < this->size - 1)
 	{
-		memcpy(&map[y_blank].pieces[x_blank], &map[y_blank + 1].pieces[x_blank], sizeof(t_piece));
-		map[y_blank + 1].pieces[x_blank].g_x = g_x_blank;
-		map[y_blank + 1].pieces[x_blank].g_y = g_y_blank;
-		map[y_blank + 1].pieces[x_blank].value = 0;
+		memcpy(&map[blank[0]].pieces[blank[1]], &map[blank[0] + 1].pieces[blank[1]], sizeof(t_piece));
+		map[blank[0] + 1].pieces[blank[1]].g_x = g_x_blank;
+		map[blank[0] + 1].pieces[blank[1]].g_y = g_y_blank;
+		map[blank[0] + 1].pieces[blank[1]].value = 0;
 		return (_SUCCESS);
 	}
-	else if (action == _LEFT && x_blank)
+	else if (action == _LEFT && blank[1])
 	{
-		memcpy(&map[y_blank].pieces[x_blank], &map[y_blank].pieces[x_blank - 1], sizeof(t_piece));
-		map[y_blank].pieces[x_blank - 1].g_x = g_x_blank;
-		map[y_blank].pieces[x_blank - 1].g_y = g_y_blank;
-		map[y_blank].pieces[x_blank - 1].value = 0;
+		memcpy(&map[blank[0]].pieces[blank[1]], &map[blank[0]].pieces[blank[1] - 1], sizeof(t_piece));
+		map[blank[0]].pieces[blank[1] - 1].g_x = g_x_blank;
+		map[blank[0]].pieces[blank[1] - 1].g_y = g_y_blank;
+		map[blank[0]].pieces[blank[1] - 1].value = 0;
 		return (_SUCCESS);
 	}
-	else if (action == _RIGHT && x_blank < this->size - 1)
+	else if (action == _RIGHT && blank[1] < this->size - 1)
 	{
-		memcpy(&map[y_blank].pieces[x_blank], &map[y_blank].pieces[x_blank + 1], sizeof(t_piece));
-		map[y_blank].pieces[x_blank + 1].g_x = g_x_blank;
-		map[y_blank].pieces[x_blank + 1].g_y = g_y_blank;
-		map[y_blank].pieces[x_blank + 1].value = 0;
+		memcpy(&map[blank[0]].pieces[blank[1]], &map[blank[0]].pieces[blank[1] + 1], sizeof(t_piece));
+		map[blank[0]].pieces[blank[1] + 1].g_x = g_x_blank;
+		map[blank[0]].pieces[blank[1] + 1].g_y = g_y_blank;
+		map[blank[0]].pieces[blank[1] + 1].value = 0;
 		return (_SUCCESS);
 	}
 
