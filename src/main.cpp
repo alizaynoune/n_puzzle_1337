@@ -60,7 +60,8 @@ static void push_line_to_map(Data *data, char *line, int i)
 	int k = 0;
 	int value = 0;
 
-	if (i == data->size){
+	if (i == data->size)
+	{
 		free(line);
 		throw(MyException("Too many lines", ""));
 	}
@@ -72,7 +73,8 @@ static void push_line_to_map(Data *data, char *line, int i)
 			data->map[i].pieces[k].g_x = -1;
 			data->map[i].pieces[k].g_y = -1;
 			value = atoi(&line[j]);
-			if (value < 0 || value >= (data->size * data->size)){
+			if (value < 0 || value >= (data->size * data->size))
+			{
 				free(line);
 				throw(MyException("Value is out of range", ""));
 			}
@@ -178,15 +180,17 @@ static int goal_piece(int size, t_piece *piece, t_map *map_copy)
 	{
 		if ((piece->value == 0 && i == ((size * size) - 1)) || (i == piece->value - 1))
 		{
-			if (map_copy[y].pieces[x].value || map_copy[y].pieces[x].g_x || map_copy[y].pieces[x].g_y){
+			if (map_copy[y].pieces[x].value || map_copy[y].pieces[x].g_x || map_copy[y].pieces[x].g_y)
+			{
 				free_map(map_copy, size);
 				throw(MyException("Duplicate value", ""));
 			}
-			map_copy[y].pieces[x].g_x = x;
-			map_copy[y].pieces[x].g_y = y;
-			map_copy[y].pieces[x].value = (piece->value) ? piece->value : -1;
+			// map_copy[y].pieces[x].g_x = x;
+			// map_copy[y].pieces[x].g_y = y;
 			piece->g_x = x;
 			piece->g_y = y;
+			memcpy(&map_copy[y].pieces[x], piece, sizeof(t_piece));
+			// map_copy[y].pieces[x].value = (piece->value) ? piece->value : -1;
 			return (_SUCCESS);
 		}
 		if (action == _UP && x < end)
@@ -225,7 +229,8 @@ static int validation_map(Data *data)
 		throw(MyException("Can't alloc map", ""));
 	for (int i = 0; i < data->size; i++)
 	{
-		if (!(map[i].pieces = (t_piece *)malloc(sizeof(t_piece) * data->size))){
+		if (!(map[i].pieces = (t_piece *)malloc(sizeof(t_piece) * data->size)))
+		{
 			free_map(map, i);
 			throw(MyException("Can't alloc map", ""));
 		}
@@ -239,8 +244,14 @@ static int validation_map(Data *data)
 			free_map(map, data->size);
 			throw(MyException("Invalid puzzle", ""));
 		}
+		if (data->map[i / data->size].pieces[i % data->size].value == 0)
+		{
+			data->y_blank = i / data->size;
+			data->x_blank = i % data->size;
+			// printf("%d\n", data->map[i / data->size].pieces[i % data->size].value);
+		}
 	}
-	free_map(map, data->size);
+	data->map_copy = map;
 
 	return (_SUCCESS);
 }
@@ -280,12 +291,12 @@ static int help_inversions(Data *data, int value, int action, int start, int end
 /* check if map is solvable */
 static int count_inversions(Data *data)
 {
-	int 	count = 0;
-	int		action = _UP;
-	int		start = 0;
-	int		end = data->size - 1;
-	int		x = 0;
-	int		y = 0;
+	int count = 0;
+	int action = _UP;
+	int start = 0;
+	int end = data->size - 1;
+	int x = 0;
+	int y = 0;
 
 	for (int i = 0; i < (data->size * data->size); i++)
 	{
@@ -325,12 +336,33 @@ int main(int ac, char **av)
 			throw(MyException("No arguments", ""));
 		parse_flags(av, ac, data);
 		parse_file(data);
+		fclose(data->fd);
+		data->fd = NULL;
 		validation_map(data);
 		// printf("%d\n", count_inversions(data));
 		if (count_inversions(data) == _FAILURE)
 			throw(MyException("This puzzle is unsolvable", ""));
 		// goal_piece(data, data->size, NULL);
 		// printf("===>%d\n", count_inversions(data));
+		data->print_map(data->map);
+		printf("%lu\n", data->manhattan_distance(data->map));
+		data->copy_map(data->map, data->map_copy);
+		data->move_piece(data->map_copy, data->x_blank, data->y_blank, _UP);
+		data->print_map(data->map_copy);
+		printf("%lu\n", data->manhattan_distance(data->map_copy));
+		data->copy_map(data->map, data->map_copy);
+		data->move_piece(data->map_copy, data->x_blank, data->y_blank, _DOWN);
+		data->print_map(data->map_copy);
+		printf("%lu\n", data->manhattan_distance(data->map_copy));
+		data->copy_map(data->map, data->map_copy);
+		data->move_piece(data->map_copy, data->x_blank, data->y_blank, _LEFT);
+		data->print_map(data->map_copy);
+		printf("%lu\n", data->manhattan_distance(data->map_copy));
+		data->copy_map(data->map, data->map_copy);
+		data->move_piece(data->map_copy, data->x_blank, data->y_blank, _RIGHT);
+		data->print_map(data->map_copy);
+		printf("%lu\n", data->manhattan_distance(data->map_copy));
+
 	}
 	catch (MyException &e)
 	{

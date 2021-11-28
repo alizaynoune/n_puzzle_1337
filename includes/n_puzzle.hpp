@@ -85,8 +85,6 @@ using namespace std;
  */
 
 typedef struct		s_piece{
-	int				x;
-	int				y;
 	int				g_x;
 	int				g_y;
 	int				value;
@@ -97,12 +95,12 @@ typedef struct		s_map{
 }					t_map;
 
 typedef struct		s_queue{
-	int				x;
-	int				y;
 	int				g;
 	int				h;
 	int				f;
-	int				move;
+	int				action;
+	t_map			*current_map;
+	int				visited;
 	struct s_queue	*next;
 	struct s_queue	*prev;
 }					t_queue;
@@ -129,25 +127,19 @@ class		IDA_star{
 	~IDA_star(void);
 	
 	/* Attributes */
-	int		bound;
-	int		g;
-	int		h;
-	int		f;
-	int		move;
-	int		x;
-	int		y;
-	// int		**map_start;
-	// int		**map_goal;
-	int		**map_copy;
+	int			bound;
+	int			open_list_size;
+	int			closed_list_size;
+	int			depth;
+	int			x_blank;
+	int			y_blank;
+	t_queue		*open_list;
 
 
 	/* Methods */
+	int			get_bound(t_map *map);
+	int			init_child(t_map *map, t_queue *child, int old_action);	
 
-	/*
-	 * IDA* algorithm
-	 */
-	int		IDA_star_search(int **map_start, int **map_goal);
-	int		IDA_star_search_bound(int **map_start, int **map_goal);
 
 };
 
@@ -166,6 +158,7 @@ class		Greedy{
 	~Greedy(void);
 };
 
+/* initioalize the data */
 class		Data{
 	public:
 		/* Constructors */
@@ -179,16 +172,19 @@ class		Data{
 		FILE		*fd;
 		t_file		*file;
 		int			size;
-		// int			**map_start;
-		// int			**map_goal;
+		int			x_blank;
+		int			y_blank;
 		t_map		*map;
-		// t_map		*map_copy;
+		t_map		*map_copy;
 
 		/* Methods */
-		int		goal_found(int **map_start, int **map_goal); // not implemented yet
-		void	add_flag(int flag);
-		int		flag_exists(int flag);
-		int		open_file(char *file);
+		void		print_map(t_map *map);
+		void		add_flag(int flag);
+		int			flag_exists(int flag);
+		int			open_file(char *file);
+		void		copy_map(t_map *src, t_map *dest);
+		int			move_piece(t_map *map, int x_blank, int y_blank, int action);
+		size_t		manhattan_distance(t_map *map);
 };
 
 /*
@@ -212,10 +208,6 @@ class	MyException : public exception{
  * Fuctions
  */
 
-// int		parse_flags(char **flags, int av, Data *data);
-// int		parse_file(char *file, Data *data);
-// int		parse_map(char *file, Data *data);
-// int		parse_goal_state(char *file, Data *data);
 void		ft_free(Data *data);
 void        free_map(t_map *map, int size);
 
