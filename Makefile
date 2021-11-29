@@ -23,7 +23,8 @@ PATH_OBJ = obj/
 PATH_INC = includes/
 
 # File srcs
-FILES = main.cpp\
+FILES =	g_var.cpp\
+		main.cpp\
 		free.cpp
 
 # File class
@@ -52,13 +53,13 @@ define	to_objects
 
 echo $(OBJS)
 mkdir -p $(PATH_OBJ)
-g++  -c $1 -o $2 -I $(PATH_INC)
+g++ -g  -c $1 -o $2 -I $(PATH_INC)
 
 endef
 
 define	to_binary
 
-g++ $(OBJS) -o $(NAME) -I $(PATH_INC)
+g++ -g $(OBJS) -o $(NAME) -I $(PATH_INC)
 
 endef
 

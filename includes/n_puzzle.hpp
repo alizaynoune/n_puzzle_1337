@@ -22,6 +22,8 @@
 #include <fstream>
 #include <string.h>
 #include <regex>
+#include <unistd.h>
+#include <cstdlib>
 // #include <limits.h>
 
 /*
@@ -35,18 +37,16 @@ using namespace std;
  */
 /* IDA* algorithm */
 #define _IDA 1
-/* A* algorithm */
-#define _AS 2
-/* Uniform Cost Search */
-#define _U 4
+/* Greedy algorithm */
+#define _G 2
+/* Eucilidean distance */
+#define _E 4
 /* Manhattan distance */
 #define _M 8
-/* Euclidean distance */
-#define _E 16
+/* Heuristic */
+#define _H 16
 /* Visualization */
 #define _V 32
-/* Generate random puzzle */
-#define _G 64
 
 /*
  * Macros color
@@ -79,6 +79,23 @@ using namespace std;
 #define _RIGHT 8
 
 /*
+ * extern variables
+ */
+extern int g_flags;
+extern int g_size;
+// extern int g_heuristic;
+extern FILE *g_fd;
+extern int **g_init_map;
+extern int **g_goal_map;
+
+/* 
+ * Define Return Errors
+ */
+# define FT_EXPR(expr, f) if (!(expr)){f; return (_ERROR);}
+# define FT_ERROR(f){f; return (_ERROR);}
+
+
+/*
  * Structrs
  */
 
@@ -105,6 +122,8 @@ typedef struct s_queue
 	int visited;
 	struct s_queue *next;
 	struct s_queue *prev;
+	struct s_queue *parent;
+	struct s_queue *child;
 } t_queue;
 
 typedef struct s_file
@@ -177,6 +196,7 @@ public:
 	void copy_map(t_map *src, t_map *dest);
 	int move_piece(t_map *map, int blank[2], int action);
 	size_t manhattan_distance(t_map *map);
+	
 };
 class Greedy
 {
@@ -193,13 +213,18 @@ public:
 	size_t n_closed;
 	size_t n_generated;
 	t_queue *open_list;
+	t_queue *queue;
+	t_queue *child;
 
 	/* Methods */
 	void		print_queue(Data *data);
 	t_map		*new_map(Data *data, t_map *map, int size);
 	size_t		get_heuristic(t_map *map, int size);
-	int			init_childrent(Data *data, t_map *map, t_queue *parent, int old_action);
-	int			push_childrent(t_map *map, t_queue *parent, size_t h, int action, int *blank);
+	int			init_childrent(Data *data, t_map *map, t_queue *parent);
+	int			push_childrent(t_map *map, size_t h, int action, int *blank, t_queue *parent);
+	int			greedy_search(Data *data);
+	void		print_step(Data *data, t_queue *parent);
+	void		free_queue(Data *data);
 };
 /*
  * My Exceptions

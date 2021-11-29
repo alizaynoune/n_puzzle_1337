@@ -68,8 +68,8 @@ int 	Data::move_piece(t_map *map, int blank[2], int action)
 {
 	int		g_x_blank =  map[blank[0]].pieces[blank[1]].g_x;
 	int		g_y_blank = map[blank[0]].pieces[blank[1]].g_y;
-
-	if (action == _UP && blank[1])
+	
+	if (action == _UP && blank[0])
 	{
 		memcpy(&map[blank[0]].pieces[blank[1]], &map[blank[0] - 1].pieces[blank[1]], sizeof(t_piece));
 		map[blank[0] - 1].pieces[blank[1]].g_x = g_x_blank;
@@ -102,7 +102,7 @@ int 	Data::move_piece(t_map *map, int blank[2], int action)
 		return (_SUCCESS);
 	}
 
-
+	// printf("move_piece failure: %d %d %d\n", g_x_blank, g_y_blank, action);
 	return (_FAILURE);
 }
 
@@ -133,4 +133,10 @@ void Data::print_map(t_map *map)
 		if ((i + 1) % this->size == 0)
 			printf("\n");
 	}
+
 }
+
+// void Data::print_step(t_map *map, t_queue *parent)
+// {
+	
+// }

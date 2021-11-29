@@ -36,6 +36,6 @@ void       ft_free(Data *data){
     //     }
     //     free(data->map);
     // }
-    free_map(data->map, data->size);
+    // free_map(data->map, data->size);
     free_map(data->map_copy, data->size);
 }

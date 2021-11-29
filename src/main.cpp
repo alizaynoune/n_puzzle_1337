@@ -13,25 +13,23 @@
 #include "n_puzzle.hpp"
 
 /* handle flags */
-static int parse_flags(char **flags, int av, Data *data)
+static int parse_flags(int ac, char **av)
 {
-	data->open_file(flags[1]);
-
-	for (int i = 2; i < av; i++)
+	FT_EXPR(g_fd = fopen(av[0], "r"), printf("%s\n", strerror(errno)))
+	for (int i = 1; i < ac; i++)
 	{
-		if (!strcmp(flags[i], "-ida"))
-			data->add_flag(_IDA);
-		else if (!strcmp(flags[i], "-as"))
-			data->add_flag(_AS);
-		else if (!strcmp(flags[i], "-u"))
-			data->add_flag(_U);
-		else if (!strcmp(flags[i], "-v"))
-			data->add_flag(_V);
-		else if (!strcmp(flags[i], "-g"))
-			data->add_flag(_G);
+		if (!strcmp(av[i], "-ida"))
+			g_flags |= _IDA;
+		else if (!strcmp(av[i], "-greedy"))
+			g_flags |= _G;
+		else if (!strcmp(av[i], "-e"))
+			g_flags |= _E;
+		else if (!strcmp(av[i], "-m"))
+			g_flags |= _M;
+		else if (!strcmp(av[i], "-h"))
+			g_flags |= _H;
 		else
-			throw(MyException("Unknown flag", flags[i]));
-		printf("%d>>\n", data->flags);
+			FT_ERROR(printf("Unknown flag: %s\n", av[i]))
 	}
 
 	return (_SUCCESS);
@@ -327,57 +325,46 @@ static int count_inversions(Data *data)
 	return (count % 2 ? _FAILURE : _SUCCESS);
 }
 
+
 int main(int ac, char **av)
 {
-	Data *data;
-	Greedy *greedy;
+	Data *data = NULL;
+	Greedy *greedy = NULL;
 
-	try
+	if (ac == 1)
 	{
-		data = new Data();
-		if (ac <= 1)
-			throw(MyException("No arguments", ""));
-		parse_flags(av, ac, data);
-		parse_file(data);
-		fclose(data->fd);
-		data->fd = NULL;
-		validation_map(data);
-		// printf("%d\n", count_inversions(data));
-		if (count_inversions(data) == _FAILURE)
-			throw(MyException("This puzzle is unsolvable", ""));
-		// goal_piece(data, data->size, NULL);
-		// printf("===>%d\n", count_inversions(data));
-		data->print_map(data->map);
-		printf("\n");
-		// printf("%lu\n", data->manhattan_distance(data->map));
-		// data->copy_map(data->map, data->map_copy);
-		// data->move_piece(data->map_copy, data->blank, _UP);
-		// data->print_map(data->map_copy);
-		// printf("%lu\n", data->manhattan_distance(data->map_copy));
-		// data->copy_map(data->map, data->map_copy);
-		// data->move_piece(data->map_copy, data->blank, _DOWN);
-		// data->print_map(data->map_copy);
-		// printf("%lu\n", data->manhattan_distance(data->map_copy));
-		// data->copy_map(data->map, data->map_copy);
-		// data->move_piece(data->map_copy, data->blank, _LEFT);
-		// data->print_map(data->map_copy);
-		// printf("%lu\n", data->manhattan_distance(data->map_copy));
-		// data->copy_map(data->map, data->map_copy);
-		// data->move_piece(data->map_copy, data->blank, _RIGHT);
-		// data->print_map(data->map_copy);
-		// printf("%lu\n", data->manhattan_distance(data->map_copy));
-		// printf("%d\n", _LEFT ^ _LEFT);
-		greedy = new Greedy();
-		greedy->init_childrent(data, data->map, greedy->open_list, 0);
-		
-		greedy->print_queue(data);
+		printf("Usage: ./fillit [file]\n");
+		return (_ERROR);
+	}
+	parse_flags(ac - 1, &av[1]);
+	// init_data();
+	// printf("%d\n", ++g_size);
+	// try
+	// {
+	// 	data = new Data();
+	// 	if (ac <= 1)
+	// 		throw(MyException("No arguments", ""));
+	// 	parse_flags(av, ac, data);
+	// 	parse_file(data);
+	// 	fclose(data->fd);
+	// 	data->fd = NULL;
+	// 	validation_map(data);
+	// 	if (count_inversions(data) == _FAILURE)
+	// 		throw(MyException("This puzzle is unsolvable", ""));
+	// 	data->print_map(data->map);
+	// 	printf("\n");
+	// 	greedy = new Greedy();
+	// 	greedy->greedy_search(data);
+	// 	delete(greedy);
 
-	}
-	catch (MyException &e)
-	{
-		e.print_msg();
-		delete data;
-		return (_FAILURE);
-	}
-	delete data;
+	// }
+	// catch (MyException &e)
+	// {
+	// 	e.print_msg();
+	// 	delete data;
+	// 	return (_FAILURE);
+	// }
+	// if (data)
+	// 	delete data;
+	return (_SUCCESS);
 }

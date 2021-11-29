@@ -44,172 +44,134 @@ t_map *Greedy::new_map(Data *data, t_map *map, int size)
 size_t Greedy::get_heuristic(t_map *map, int size)
 {
     size_t distance = 0;
+    size_t m_b = 0;
+    int x = 0;
+    int y = 0;
 
     for (int i = 0; i < (size * size); i++)
     {
-        if (map[i / size].pieces[i % size].value != 0)
+        y = i / size;
+        x = i % size;
+        // printf("y=>%d x=>%d i=>%d size=>%d\n", y, x, i, (size * size));
+        if (map[y].pieces[x].value != 0 && (map[y].pieces[x].g_y != y || map[y].pieces[x].g_x != x))
         {
-            distance += abs(map[i / size].pieces[i % size].g_x - i % size);
-            distance += abs(map[i / size].pieces[i % size].g_y - i / size);
+            // printf("val=%d g_y=%d g_x=%d y=%d x=%d\n", map[y].pieces[x].value, map[y].pieces[x].g_y, map[y].pieces[x].g_x, y , x);
+            distance += abs(map[y].pieces[x].g_x - x);
+            distance += abs(map[y].pieces[x].g_y - y);
+            m_b++;
         }
     }
-    return (distance);
+    // printf("distance=>%lu\n\n", distance);
+    return (distance + m_b);
 }
 
 /* push a new node in the open list */
-int Greedy::push_childrent(t_map *map, t_queue *parent, size_t h, int action, int *blank)
+int Greedy::push_childrent(t_map *map, size_t h, int action, int *blank, t_queue *parent)
 {
     t_queue *tmp;
 
-    printf("%d\n", action);
+    // printf("[%d]\n", action);
     if (!(tmp = (t_queue *)malloc(sizeof(t_queue))))
         return (_FAILURE);
     memset(tmp, 0, sizeof(t_queue));
     tmp->current_map = map;
 
-    if (parent)
+    if (this->open_list)
     {
-        tmp->prev = parent;
-        parent->next = tmp;
+        tmp->prev = this->open_list;
+        this->open_list->next = tmp;
+        // this->queue = tmp;
     }
+    if (!this->queue)
+        this->queue = tmp;
     tmp->h = h;
     tmp->action = action;
     tmp->blank[0] = blank[0];
     tmp->blank[1] = blank[1];
+    tmp->parent = parent;
+    // if (parent)
+    //     parent->child = tmp;
     this->open_list = tmp;
     return (_SUCCESS);
 }
 
 /* init childrent */
-int Greedy::init_childrent(Data *data, t_map *map, t_queue *parent, int old_action)
+int Greedy::init_childrent(Data *data, t_map *map, t_queue *parent)
 {
-    int action = 0;
+    int action[4] = {_UP, _DOWN, _LEFT, _RIGHT};
+    int old_action = 0;
     size_t h = SIZE_T_MAX;
     size_t h_tmp[4] = {0, 0, 0, 0};
     t_map *map_tmp[4] = {NULL, NULL, NULL, NULL};
     int *blank = !(parent) ? data->blank : parent->blank;
     int blank_tmp[2] = {0, 0};
 
-    action = _UP | _DOWN | _LEFT | _RIGHT;
-    action ^= old_action;
-
-    if (action & _UP)
+    // printf("[%d]\n", old_action);
+    parent->action == _UP ? old_action = _DOWN : 0;
+    parent->action == _DOWN ? old_action = _UP : 0;
+    parent->action == _LEFT ? old_action = _RIGHT : 0;
+    parent->action == _RIGHT ? old_action = _LEFT : 0;
+    for (int i = 0; i < 4; i++)
     {
-        if (!(map_tmp[0] = new_map(data, map, data->size)))
-        {
-            return (_FAILURE);
-        }
-        if (data->move_piece(map_tmp[0], blank, _UP) == _SUCCESS)
-        {
-            h_tmp[0] = this->get_heuristic(map_tmp[0], data->size);
-            h_tmp[0] > h ? action ^= _UP : h = h_tmp[0];
-        }
-        else
-            action ^= _UP;
-    }
-    if (action & _DOWN)
-    {
-        if (!(map_tmp[1] = new_map(data, map, data->size)))
-        {
-            return (_FAILURE);
-        }
-        if (data->move_piece(map_tmp[1], blank, _DOWN) == _SUCCESS)
-        {
-            h_tmp[1] = this->get_heuristic(map_tmp[1], data->size);
-            h_tmp[1] > h ? action ^= _DOWN : h = h_tmp[1];
-        }
-        else
-            action ^= _DOWN;
-    }
-    if (action & _LEFT)
-    {
-        if (!(map_tmp[2] = new_map(data, map, data->size)))
-        {
-            return (_FAILURE);
-        }
-        if (data->move_piece(map_tmp[2], blank, _LEFT) == _SUCCESS)
-        {
-            h_tmp[2] = this->get_heuristic(map_tmp[2], data->size);
-            h_tmp[2] > h ? action ^= _LEFT : h = h_tmp[2];
-        }
-        else
-            action ^= _LEFT;
-    }
-    if (action & _RIGHT)
-    {
-        if (!(map_tmp[3] = new_map(data, map, data->size)))
-        {
-            return (_FAILURE);
-        }
-        if (data->move_piece(map_tmp[3], blank, _RIGHT) == _SUCCESS)
-        {
-            h_tmp[3] = this->get_heuristic(map_tmp[3], data->size);
-            h_tmp[3] > h ? action ^= _RIGHT : h = h_tmp[3];
-        }
-        else
-            action ^= _RIGHT;
-    }
-
-
-
-
-    if (action & _UP)
-    {
-        blank_tmp[0] = blank[0] - 1;
-        blank_tmp[1] = blank[1];
-        if (this->push_childrent(map_tmp[0], parent, h_tmp[0], _UP, blank_tmp) == _FAILURE)
+        if (old_action == action[i])
+            continue;
+        if (!(map_tmp[i] = new_map(data, map, data->size)))
         {
             for (int i = 0; i < 4; i++)
-                free_map(map_tmp[i], data->size);
+                if (map_tmp[i])
+                    free_map(map_tmp[i], data->size);
             return (_FAILURE);
         }
-        map_tmp[0] = NULL;
-    }
-    if (action & _DOWN)
-    {
-        blank_tmp[0] = blank[0] + 1;
-        blank_tmp[1] = blank[1];
-        if (this->push_childrent(map_tmp[1], parent, h_tmp[1], _DOWN, blank_tmp) == _FAILURE)
+        if (data->move_piece(map_tmp[i], blank, action[i]) == _SUCCESS)
+            h_tmp[i] = this->get_heuristic(map_tmp[i], data->size);
+        else
         {
-            for (int i = 1; i < 4; i++)
-                free_map(map_tmp[i], data->size);
-            return (_FAILURE);
+            h_tmp[i] = SIZE_T_MAX;
+            free_map(map_tmp[i], data->size);
+            map_tmp[i] = NULL;
         }
-        map_tmp[1] = NULL;
-    }
-    if (action & _LEFT)
-    {
-        blank_tmp[0] = blank[0];
-        blank_tmp[1] = blank[1] - 1;
-        if (this->push_childrent(map_tmp[2], parent, h_tmp[2], _LEFT, blank_tmp) == _FAILURE)
-        {
-            for (int i = 2; i < 4; i++)
-                free_map(map_tmp[i], data->size);
-            return (_FAILURE);
-        }
-        map_tmp[2] = NULL;
-    }
-    if (action & _RIGHT)
-    {
-        blank_tmp[0] = blank[0];
-        blank_tmp[1] = blank[1] + 1;
-        if (this->push_childrent(map_tmp[3], parent, h_tmp[3], _RIGHT, blank_tmp) == _FAILURE)
-        {
-            free_map(map_tmp[3], data->size);
-            return (_FAILURE);
-        }
-        map_tmp[3] = NULL;
+        h = (h_tmp[i] < h) ? h_tmp[i] : h;
     }
     for (int i = 0; i < 4; i++)
     {
-        if (map_tmp[i])
+        if (h_tmp[i] == h && map_tmp[i])
+        {
+            if (action[i] == _UP)
+            {
+                blank_tmp[0] = blank[0] - 1;
+                blank_tmp[1] = blank[1];
+            }
+            else if (action[i] == _DOWN)
+            {
+                blank_tmp[0] = blank[0] + 1;
+                blank_tmp[1] = blank[1];
+            }
+            else if (action[i] == _LEFT)
+            {
+                blank_tmp[0] = blank[0];
+                blank_tmp[1] = blank[1] - 1;
+            }
+            else if (action[i] == _RIGHT)
+            {
+                blank_tmp[0] = blank[0];
+                blank_tmp[1] = blank[1] + 1;
+            }
+            if (this->push_childrent(map_tmp[i], h_tmp[i], action[i], blank_tmp, parent) == _FAILURE)
+            {
+                for (int i = 0; i < 4; i++)
+                    if (map_tmp[i])
+                        free_map(map_tmp[i], data->size);
+                return (_FAILURE);
+            }
+            else
+            {
+                this->n_generated++;
+                map_tmp[i] = NULL;
+            }
+        }
+        else if (map_tmp[i])
             free_map(map_tmp[i], data->size);
     }
-    for (int i = 0; i < 4; i++)
-    {
-        printf("[%lu %d] ", h_tmp[i], action);
-    }
-    printf("\n");
     return (_SUCCESS);
 }
 
@@ -223,6 +185,85 @@ void Greedy::print_queue(Data *data)
         printf("%d\n", tmp->action);
         data->print_map(tmp->current_map);
         printf("\n");
+        printf("g=%d h=%d f=%d y=%d x=%d action=%d vis=%d\n", tmp->g, tmp->h, tmp->f, tmp->blank[0], tmp->blank[1], tmp->action, tmp->visited);
         tmp = tmp->prev;
+    }
+}
+
+/* Greedy algorithm */
+int Greedy::greedy_search(Data *data)
+{
+    t_map *map = data->map;
+    size_t h = this->get_heuristic(map, data->size);
+    t_queue *tmp = NULL;
+    int *blank = data->blank;
+    int action = 0;
+    int old_action = 0;
+
+    if (!h)
+        return (_SUCCESS);
+    n_open++;
+    this->push_childrent(map, h, action, blank, NULL);
+    tmp = this->queue;
+    while (tmp)
+    {
+        if (!tmp->h)
+            break;
+        if (!tmp->visited && this->init_childrent(data, tmp->current_map, tmp) == _SUCCESS)
+        {
+            h = tmp->h;
+            tmp->visited = 1;
+        }
+        tmp = tmp->next;
+    }
+    printf("\n");
+    if (tmp)
+    {
+        t_queue *tmp2 = NULL;
+        while (tmp)
+        {
+            tmp2 = tmp;
+            tmp = tmp->parent;
+            if (tmp)
+                tmp->child = tmp2;
+        }
+        this->print_step(data, tmp2);
+    }
+
+    this->free_queue(data);
+
+    return (_FAILURE);
+}
+
+void Greedy::print_step(Data *data, t_queue *parent)
+{
+    t_queue *tmp = parent;
+
+    while (tmp)
+    {
+        if (tmp->action == _UP)
+            printf("UP\n");
+        else if (tmp->action == _DOWN)
+            printf("DOWN\n");
+        else if (tmp->action == _LEFT)
+            printf("LEFT\n");
+        else if (tmp->action == _RIGHT)
+            printf("RIGHT\n");
+        data->print_map(tmp->current_map);
+        tmp = tmp->child;
+    }
+}
+
+void Greedy::free_queue(Data *data)
+{
+    t_queue *queue = this->queue;
+    t_queue *tmp = NULL;
+    while (queue)
+    {
+        tmp = queue;
+        queue = queue->next;
+        if (tmp->current_map)
+            free_map(tmp->current_map, data->size);
+        free(tmp);
     }
 }
