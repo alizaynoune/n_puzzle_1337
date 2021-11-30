@@ -13,81 +13,87 @@
 #include "n_puzzle.hpp"
 
 /* handle flags */
-static int parse_flags(int ac, char **av)
+static int parse_flags(char **av)
 {
 
-	for (int i = 0; i < ac; i++)
-	{
-		if (!strcmp(av[i], "-ida"))
+	// for (int i = 0; i < ac; i++)
+	// {
+		if (!strcmp(av[0], "-ida"))
 			g_flags |= _IDA;
-		else if (!strcmp(av[i], "-greedy"))
+		else if (!strcmp(av[0], "-greedy"))
 			g_flags |= _G;
-		else if (!strcmp(av[i], "-e"))
+		else
+		{
+			fprintf(stderr, "usage: ./n_puzzle [-ida] [-greedy] [-e] [-m] [-h]\n");
+			return (_ERROR);
+		}
+
+		if (!strcmp(av[1], "-e"))
 			g_flags |= _E;
-		else if (!strcmp(av[i], "-m"))
+		else if (!strcmp(av[1], "-m"))
 			g_flags |= _M;
-		else if (!strcmp(av[i], "-h"))
+		else if (!strcmp(av[1], "-h"))
 			g_flags |= _H;
 		else
 		{
 			fprintf(stderr, "usage: ./n_puzzle [-ida] [-greedy] [-e] [-m] [-h]\n");
 			return (_ERROR);
 		}
-	}
+	// }
 
 	return (_SUCCESS);
 }
 
 
-static int goal_piece(int size, t_piece *piece, t_map *map_copy)
-{
-	int action = _UP;
-	int x = 0;
-	int y = 0;
-	int start = 0;
-	int end = size - 1;
+// static int goal_piece(int size, t_piece *piece, t_map *map_copy)
+// {
+// 	int action = _UP;
+// 	int x = 0;
+// 	int y = 0;
+// 	int start = 0;
+// 	int end = size - 1;
 
-	for (int i = 0; i < (size * size); i++)
-	{
-		if ((piece->value == 0 && i == ((size * size) - 1)) || (i == piece->value - 1))
-		{
-			if (map_copy[y].pieces[x].value || map_copy[y].pieces[x].g_x || map_copy[y].pieces[x].g_y)
-			{
-				free_map(map_copy, size);
-				throw(MyException("Duplicate value", ""));
-			}
-			// map_copy[y].pieces[x].g_x = x;
-			// map_copy[y].pieces[x].g_y = y;
-			piece->g_x = x;
-			piece->g_y = y;
-			memcpy(&map_copy[y].pieces[x], piece, sizeof(t_piece));
-			// map_copy[y].pieces[x].value = (piece->value) ? piece->value : -1;
-			return (_SUCCESS);
-		}
-		if (action == _UP && x < end)
-			x++;
-		else if (action == _DOWN && x > start)
-			x--;
+// 	for (int i = 0; i < (size * size); i++)
+// 	{
+// 		if ((piece->value == 0 && i == ((size * size) - 1)) || (i == piece->value - 1))
+// 		{
+// 			if (map_copy[y].pieces[x].value || map_copy[y].pieces[x].g_x || map_copy[y].pieces[x].g_y)
+// 			{
+// 				free_map(map_copy, size);
+// 				throw(MyException("Duplicate value", ""));
+// 			}
+// 			// map_copy[y].pieces[x].g_x = x;
+// 			// map_copy[y].pieces[x].g_y = y;
+// 			piece->g_x = x;
+// 			piece->g_y = y;
+// 			memcpy(&map_copy[y].pieces[x], piece, sizeof(t_piece));
+// 			// map_copy[y].pieces[x].value = (piece->value) ? piece->value : -1;
+// 			return (_SUCCESS);
+// 		}
+// 		if (action == _UP && x < end)
+// 			x++;
+// 		else if (action == _DOWN && x > start)
+// 			x--;
 
-		else if (action == _RIGHT && y < end)
-			y++;
-		else if (action == _LEFT && y > start)
-			y--;
-		if (action == _LEFT && y == start)
-		{
-			action = _UP;
-			start++;
-			end--;
-			x = start;
-			y = start;
-		}
-		action == _UP &&x == end ? action = _RIGHT : 0;
-		action == _DOWN &&x == start ? action = _LEFT : 0;
-		action == _RIGHT &&y == end ? action = _DOWN : 0;
-	}
+// 		else if (action == _RIGHT && y < end)
+// 			y++;
+// 		else if (action == _LEFT && y > start)
+// 			y--;
+// 		if (action == _LEFT && y == start)
+// 		{
+// 			action = _UP;
+// 			start++;
+// 			end--;
+// 			x = start;
+// 			y = start;
+// 		}
+// 		action == _UP &&x == end ? action = _RIGHT : 0;
+// 		action == _DOWN &&x == start ? action = _LEFT : 0;
+// 		action == _RIGHT &&y == end ? action = _DOWN : 0;
+// 	}
 
-	return (_FAILURE);
-}
+// 	return (_FAILURE);
+// }
 
 static int help_inversions(int **map,int action, int start, int end, int x, int y, int i)
 {
@@ -118,10 +124,7 @@ static int help_inversions(int **map,int action, int start, int end, int x, int 
 		if (map[y][x] && map[y][x] < value)
 			count++;
 		else if (map[y][x] == value)
-		{
-			return (-1);
-			fprintf(stderr, "error\n");
-		}
+			return (-1); // where duplicate value
 		i++;
 	}
 	return (count);
@@ -336,16 +339,17 @@ int main(int ac, char **av)
 	t_data	*data = NULL;
 	int		inversion = 0;
 
-	SAFE(ac == 1, fprintf(stderr, "Usage: ./n_puzzle [file] -[flags]\n"), _ERROR)
+	SAFE((ac != 4 && ac != 2), fprintf(stderr, "Usage: ./n_puzzle [file] -[flags]\n"), _ERROR)
 	SAFE(!(fd = fopen(av[1], "r")), fprintf(stderr, "%s %s\n", strerror(errno), av[1]), _ERROR)
-	SAFE(parse_flags(ac - 2, &av[2]) == _ERROR, fclose(fd), _ERROR)
+	SAFE((ac == 4 && parse_flags(&av[2]) == _ERROR), fclose(fd), _ERROR)
 	SAFE(parse_file(fd) == _ERROR, ft_free_map(g_init_map, g_size), _ERROR)
 	fclose(fd);
 	SAFE((inversion = count_inversions(g_init_map)) == -1, (ft_free_map(g_init_map, g_size), fprintf(stderr, "Duplicate value\n")), _ERROR)
 	SAFE(inversion % 2, (ft_free_map(g_init_map, g_size), fprintf(stderr, "This puzzle is unsolvable\n")), _ERROR);
 	SAFE(!(data = (t_data *) malloc(sizeof(t_data))), fprintf(stderr, "%s\n", strerror(errno)), _ERROR)
 	SAFE(!(data->position = init_goal_position(g_init_map)), free(data), _ERROR)
-
+	int s = Misplaced(g_init_map, data->position);
+	printf("[%d]\n", s);
 	print_map(g_init_map);
 	printf("\n");
 

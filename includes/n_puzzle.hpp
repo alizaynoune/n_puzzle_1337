@@ -150,120 +150,123 @@ typedef struct		s_data
  * Classes
  */
 
-class IDA_star
-{
-	/* Constructors */
-	IDA_star(void);
-	/* Destructors */
-	~IDA_star(void);
+// class IDA_star
+// {
+// 	/* Constructors */
+// 	IDA_star(void);
+// 	/* Destructors */
+// 	~IDA_star(void);
 
-	/* Attributes */
-	int bound;
-	int open_list_size;
-	int closed_list_size;
-	int depth;
-	int x_blank;
-	int y_blank;
-	int blank[2];
-	t_queue *open_list;
+// 	/* Attributes */
+// 	int bound;
+// 	int open_list_size;
+// 	int closed_list_size;
+// 	int depth;
+// 	int x_blank;
+// 	int y_blank;
+// 	int blank[2];
+// 	t_queue *open_list;
 
-	/* Methods */
-	int get_bound(t_map *map);
-	int init_childrent(t_map *map, t_queue *parent, int old_action);
-	int push_childrent(t_map *map, t_queue *parent);
-};
+// 	/* Methods */
+// 	int get_bound(t_map *map);
+// 	int init_childrent(t_map *map, t_queue *parent, int old_action);
+// 	int push_childrent(t_map *map, t_queue *parent);
+// };
 
-class A_star
-{
-	/* Constructors */
-	A_star(void);
-	/* Destructors */
-	~A_star(void);
-};
+// class A_star
+// {
+// 	/* Constructors */
+// 	A_star(void);
+// 	/* Destructors */
+// 	~A_star(void);
+// };
 
-/* initioalize the data */
-class Data
-{
-public:
-	/* Constructors */
-	Data(void);
+// /* initioalize the data */
+// class Data
+// {
+// public:
+// 	/* Constructors */
+// 	Data(void);
 
-	/* Destructors */
-	~Data(void);
+// 	/* Destructors */
+// 	~Data(void);
 
-	/* Attributes */
-	int flags;
-	FILE *fd;
-	// t_file *file;
-	int size;
-	int x_blank;
-	int y_blank;
-	int blank[2];
-	t_map *map;
-	t_map *map_copy;
+// 	/* Attributes */
+// 	int flags;
+// 	FILE *fd;
+// 	// t_file *file;
+// 	int size;
+// 	int x_blank;
+// 	int y_blank;
+// 	int blank[2];
+// 	t_map *map;
+// 	t_map *map_copy;
 
-	/* Methods */
-	void print_map(t_map *map); // delete it
-	void add_flag(int flag);
-	int flag_exists(int flag);
-	int open_file(char *file);
-	void copy_map(t_map *src, t_map *dest);
-	int move_piece(t_map *map, int blank[2], int action);
-	size_t manhattan_distance(t_map *map);
+// 	/* Methods */
+// 	void print_map(t_map *map); // delete it
+// 	void add_flag(int flag);
+// 	int flag_exists(int flag);
+// 	int open_file(char *file);
+// 	void copy_map(t_map *src, t_map *dest);
+// 	int move_piece(t_map *map, int blank[2], int action);
+// 	size_t manhattan_distance(t_map *map);
 	
-};
-class Greedy
-{
-public:
-	/* Constructors */
-	Greedy(void);
+// };
+// class Greedy
+// {
+// public:
+// 	/* Constructors */
+// 	Greedy(void);
 
-	/* Destructors */
-	~Greedy(void);
+// 	/* Destructors */
+// 	~Greedy(void);
 
-	/* Attributes */
-	size_t _heuristic;
-	size_t n_open;
-	size_t n_closed;
-	size_t n_generated;
-	t_queue *open_list;
-	t_queue *queue;
-	t_queue *child;
+// 	/* Attributes */
+// 	size_t _heuristic;
+// 	size_t n_open;
+// 	size_t n_closed;
+// 	size_t n_generated;
+// 	t_queue *open_list;
+// 	t_queue *queue;
+// 	t_queue *child;
 
-	/* Methods */
-	void		print_queue(Data *data);
-	t_map		*new_map(Data *data, t_map *map, int size);
-	size_t		get_heuristic(t_map *map, int size);
-	int			init_childrent(Data *data, t_map *map, t_queue *parent);
-	int			push_childrent(t_map *map, size_t h, int action, int *blank, t_queue *parent);
-	int			greedy_search(Data *data);
-	void		print_step(Data *data, t_queue *parent);
-	void		free_queue(Data *data);
-};
+// 	/* Methods */
+// 	void		print_queue(Data *data);
+// 	t_map		*new_map(Data *data, t_map *map, int size);
+// 	size_t		get_heuristic(t_map *map, int size);
+// 	int			init_childrent(Data *data, t_map *map, t_queue *parent);
+// 	int			push_childrent(t_map *map, size_t h, int action, int *blank, t_queue *parent);
+// 	int			greedy_search(Data *data);
+// 	void		print_step(Data *data, t_queue *parent);
+// 	void		free_queue(Data *data);
+// };
 /*
  * My Exceptions
  */
 
-class MyException : public exception
-{
-public:
-	MyException(const char *msg, const char *msg2);
-	~MyException(void) throw();
-	void print_msg(void);
+// class MyException : public exception
+// {
+// public:
+// 	MyException(const char *msg, const char *msg2);
+// 	~MyException(void) throw();
+// 	void print_msg(void);
 
-private:
-	const char *msg;
-	const char *msg2;
-};
+// private:
+// 	const char *msg;
+// 	const char *msg2;
+// };
 
 /*
  * Fuctions
  */
 
-void ft_free(Data *data);
-void free_map(t_map *map, int size);
+// void ft_free(Data *data);
+// void free_map(t_map *map, int size);
 
 void		ft_free_map(int **map, int size);
 void		ft_free_position(t_goalPosition *map);
+
+
+int     Misplaced(int **map, t_goalPosition *goal_map);
 
 #endif
