@@ -20,7 +20,7 @@ Data::Data()
 {
 	flags = 0;
 	fd = 0;
-	file = NULL;
+	// file = NULL;
 	size = 0;
 	map = NULL;
 	x_blank = 0;

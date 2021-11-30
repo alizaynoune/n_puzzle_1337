@@ -86,30 +86,44 @@ extern int g_size;
 // extern int g_heuristic;
 extern FILE *g_fd;
 extern int **g_init_map;
-extern int **g_goal_map;
+// extern int **g_goal_map;
 
 /* 
  * Define Return Errors
  */
-# define FT_EXPR(expr, f) if (!(expr)){f; return (_ERROR);}
-# define FT_ERROR(f){f; return (_ERROR);}
+# define FT_EXPR(expr, f) if (expr){f; return (_ERROR);}
+# define FT_ERROR(f, codeError){f; return (codeError);}
+
+/* Define SAFE expr, function, and codeError */
+# define SAFE(expr, f, codeError)if (expr){f; return (codeError);}
 
 
 /*
  * Structrs
  */
 
-typedef struct s_piece
+typedef struct		s_piece
 {
-	int g_x;
-	int g_y;
-	int value;
-} t_piece;
+	int				g_x;
+	int				g_y;
+	int				value;
+}					t_piece;
 
-typedef struct s_map
+typedef struct		s_map
 {
-	t_piece *pieces;
-} t_map;
+	t_piece			*pieces;
+} 					t_map;
+
+typedef struct		s_position
+{
+	int				y;
+	int				x;
+}					t_position;
+
+typedef struct		s_goalPosition
+{
+	t_position		*pos;
+}					t_goalPosition;
 
 typedef struct s_queue
 {
@@ -126,11 +140,11 @@ typedef struct s_queue
 	struct s_queue *child;
 } t_queue;
 
-typedef struct s_file
+
+typedef struct		s_data
 {
-	char *line;
-	s_file *next;
-} t_file;
+	t_goalPosition	*position;
+}					t_data;
 
 /*
  * Classes
@@ -180,7 +194,7 @@ public:
 	/* Attributes */
 	int flags;
 	FILE *fd;
-	t_file *file;
+	// t_file *file;
 	int size;
 	int x_blank;
 	int y_blank;
@@ -248,5 +262,8 @@ private:
 
 void ft_free(Data *data);
 void free_map(t_map *map, int size);
+
+void		ft_free_map(int **map, int size);
+void		ft_free_position(t_goalPosition *map);
 
 #endif

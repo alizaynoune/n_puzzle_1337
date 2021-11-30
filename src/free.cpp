@@ -1,9 +1,12 @@
 #include "n_puzzle.hpp"
 
 /* free map */
-void        free_map(t_map *map, int size){
-    if (map){
-        for (int i = 0; i < size; i++){
+void free_map(t_map *map, int size)
+{
+    if (map)
+    {
+        for (int i = 0; i < size; i++)
+        {
             if (map[i].pieces)
                 free(map[i].pieces);
         }
@@ -11,22 +14,24 @@ void        free_map(t_map *map, int size){
     }
 }
 
-
 /* free all data */
-void       ft_free(Data *data){
+void ft_free(Data *data)
+{
     /* close file descriptor */
-    if (data->fd)
-        fclose(data->fd);
-    /* free list of lines */
-    if (data->file){
-        t_file *tmp;
-        while (data->file){
-            tmp = data->file;
-            data->file = data->file->next;
-            free(tmp->line);
-            free(tmp);
-        }
-    }
+    // if (data->fd)
+    //     fclose(data->fd);
+    // /* free list of lines */
+    // if (data->file)
+    // {
+    //     t_file *tmp;
+    //     while (data->file)
+    //     {
+    //         tmp = data->file;
+    //         data->file = data->file->next;
+    //         free(tmp->line);
+    //         free(tmp);
+    //     }
+    // }
     /* free map */
     // if (data->map){
     //     // free_table(data->map, data->size);
@@ -38,4 +43,30 @@ void       ft_free(Data *data){
     // }
     // free_map(data->map, data->size);
     free_map(data->map_copy, data->size);
+}
+
+void ft_free_map(int **map, int size)
+{
+    if (map)
+    {
+        for (int i = 0; i < size; i++)
+        {
+            if (map[i])
+                free(map[i]);
+        }
+        free(map);
+    }
+}
+
+void        ft_free_position(t_goalPosition *map)
+{
+    if (map)
+    {
+        for (int i = 0; i < g_size; i++)
+        {
+            if (map[i].pos)
+                free(map[i].pos);
+        }
+        free(map);
+    }
 }

@@ -25,7 +25,8 @@ PATH_INC = includes/
 # File srcs
 FILES =	g_var.cpp\
 		main.cpp\
-		free.cpp
+		free.cpp\
+		heuristic.cpp
 
 # File class
 FILES_CLASS =	data.cpp\
