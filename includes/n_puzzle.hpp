@@ -49,6 +49,10 @@ using namespace std;
 /* Visualization */
 #define _V 32
 
+#define _MP		64
+
+// 0 1 2 3
+
 /*
  * Macros color
  */
@@ -126,6 +130,9 @@ typedef struct		s_goalPosition
 	t_position		*pos;
 }					t_goalPosition;
 
+
+extern t_goalPosition	*g_goal_map;
+
 typedef struct s_queue
 {
 	int g;
@@ -144,20 +151,37 @@ typedef struct s_queue
 
 typedef struct		s_data
 {
+	// int				blank[2];
 	int				time_complexity;
 	int				size_complexity;
 	t_goalPosition	*position;
 }					t_data;
 
+// typedef int		(*t_tokenizer)(t_data *);
+
+// extern t_tokenizer	g_tokenizers[];
+
+
+typedef int (*t_heuristic)(int **, int, int);
+
+extern	t_heuristic		g_heuristic[];
+
+void print_map(int **map);// for test
 
 void		ft_free_map(int **map, int size);
 void		ft_free_position(t_goalPosition *map);
 
 
-int     Misplaced_distance(int **map, t_goalPosition *goal_map);
-int     Manhattan_distance(int **map, t_goalPosition *goal_map);
-// int     Inversions_distance(int **map, t_goalPosition *goal_map);
-int     Inversions_distance(int **map, int y, int x, int i);
-int     Euclidean_distance(int **map, t_goalPosition *goal_map);
+int     Misplaced_distance(int **map, int y, int x);
+int     Manhattan_distance(int **map, int y, int x);
+int     Inversions_distance(int **map, int y, int x);
+int     Euclidean_distance(int **map, int y, int x);
+
+int         ida_star(int *blank, int h_id);
+int         greedy_search(int *blank, int h_id);
+int         a_star(int *blank, int h_id);
+
+int         solver(int *blank, int h_id, int (algo)(int *, int));
+
 
 #endif

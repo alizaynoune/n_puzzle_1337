@@ -290,7 +290,9 @@ void					goal_position(int value, int *y, int *x)
 	int end = g_size - 1;
 	int i = 0;
 
-	value = value == 0 ? 15 : value - 1;
+	// printf("<%d ", value);
+	value = value == 0 ? g_size * g_size : value - 1;
+	// value--;
 	while (i < value)
 	{
 		if (action == _UP && *x < end)
@@ -314,11 +316,12 @@ void					goal_position(int value, int *y, int *x)
 		action == _RIGHT && *y == end ? action = _DOWN : 0;
 		i++;
 	}
+	// printf("%d %d>\n",*y, *x);
 }
 
 
 
-t_goalPosition		*init_goal_position(int **map)
+t_goalPosition		*init_goal_position(int **map, int *blank)
 {
 	t_goalPosition	*new_map = NULL;
 
@@ -330,6 +333,11 @@ t_goalPosition		*init_goal_position(int **map)
 		memset(new_map[i].pos, 0, sizeof(t_position) * g_size);
 		for(int j = 0; j < g_size; j++){
 			goal_position((i * g_size) + j, &new_map[i].pos[j].y, &new_map[i].pos[j].x);
+			if (!map[i][j])
+			{
+				blank[0] = i;
+				blank[1] = j;
+			}
 			// printf("[%4d, %d, %d]", (i * g_size) + j, new_map[i].pos[j].y, new_map[i].pos[j].x);
 		}
 		// printf("\n");
@@ -342,6 +350,7 @@ int main(int ac, char **av)
 	FILE 	*fd = NULL;
 	t_data	*data = NULL;
 	int		inversion = 0;
+	int		blank[2] = {0, 0};
 
 	SAFE((ac != 4 && ac != 2), fprintf(stderr, "Usage: ./n_puzzle [file] -[flags]\n"), _ERROR)
 	SAFE(!(fd = fopen(av[1], "r")), fprintf(stderr, "%s %s\n", strerror(errno), av[1]), _ERROR)
@@ -351,21 +360,24 @@ int main(int ac, char **av)
 	SAFE((inversion = count_inversions(g_init_map)) == -1, (ft_free_map(g_init_map, g_size), fprintf(stderr, "Duplicate value\n")), _ERROR)
 	SAFE(inversion % 2, (ft_free_map(g_init_map, g_size), fprintf(stderr, "This puzzle is unsolvable\n")), _ERROR);
 	SAFE(!(data = (t_data *) malloc(sizeof(t_data))), fprintf(stderr, "%s\n", strerror(errno)), _ERROR)
-	SAFE(!(data->position = init_goal_position(g_init_map)), free(data), _ERROR)
-	// int s = Euclidean_distance(g_init_map, data->position);
-	// printf("[%f %d]\n", sqrt(s), Manhattan_distance(g_init_map, data->position));
+	SAFE(!(data->position = init_goal_position(g_init_map, blank)), free(data), _ERROR)
+	g_goal_map = data->position;
 	print_map(g_init_map);
-	printf("\n<<%d>>\n", inversion);
+	printf("\n<<%d>> %d %d\n", inversion, blank[0], blank[1]);
 
-	inversion = 0;
-	for (int i = 0; i < (g_size * g_size); i++)
-	{
-		inversion += Inversions_distance(g_init_map, i / g_size, i % g_size, i);
-		// printf("[%2d]  ", g_init_map[i / g_size][i % g_size]);
-		// if ((i + 1) % g_size == 0 )
-			// printf("\n");
-	}
-	printf("<<%d>>\n", inversion);
+	// inversion = 0;
+	// for (int i = 0; i < (g_size * g_size); i++)
+	// {
+	// 	inversion += Manhattan_distance(g_init_map, i / g_size, i % g_size);
+	// 	// printf("[%2d]  ", g_init_map[i / g_size][i % g_size]);
+	// 	// if ((i + 1) % g_size == 0 )
+	// 		// printf("\n");
+	// }
+	// printf("<<%d>>\n", inversion);
+	// ida_star(blank, 1);
+	// int h_id = 
+	solver(blank, 1, (g_flags & _G) ? greedy_search : ida_star);
+	// print_map(g_init_map);
 
 	// int x = 0;
 	// int y = 0;
