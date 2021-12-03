@@ -220,7 +220,7 @@ static int push_line_to_map(char *line, int i)
 		if ((j == 0 && isdigit(line[j])) || (!isdigit(line[j]) && isdigit(line[j + 1])))
 		{
 			value = atoi(&line[j]);
-			SAFE((value < 0 || value >= (g_size * g_size)), fprintf(stderr, "Value is out of range\n"), _ERROR)
+			SAFE((value < 0 || value >= (g_size * g_size)), fprintf(stderr, "Value is out of range %d\n", value), _ERROR)
 			g_init_map[i][k++] = value;
 		}
 	}
@@ -290,7 +290,8 @@ void					goal_position(int value, int *y, int *x)
 	int end = g_size - 1;
 	int i = 0;
 
-	while (i < value - 1)
+	value = value == 0 ? 15 : value - 1;
+	while (i < value)
 	{
 		if (action == _UP && *x < end)
 			*x += 1;
@@ -327,8 +328,11 @@ t_goalPosition		*init_goal_position(int **map)
 	{
 		SAFE(!(new_map[i].pos = (t_position *) malloc(sizeof(t_position) * g_size)),(ft_free_position(new_map),fprintf(stderr, "%s\n", strerror(errno))) , NULL)
 		memset(new_map[i].pos, 0, sizeof(t_position) * g_size);
-		for(int j = 0; j < g_size; j++)
-			goal_position((i * g_size) + j + 1, &new_map[i].pos[j].y, &new_map[i].pos[j].x);
+		for(int j = 0; j < g_size; j++){
+			goal_position((i * g_size) + j, &new_map[i].pos[j].y, &new_map[i].pos[j].x);
+			// printf("[%4d, %d, %d]", (i * g_size) + j, new_map[i].pos[j].y, new_map[i].pos[j].x);
+		}
+		// printf("\n");
 	}
 	return (new_map);
 }
@@ -348,10 +352,20 @@ int main(int ac, char **av)
 	SAFE(inversion % 2, (ft_free_map(g_init_map, g_size), fprintf(stderr, "This puzzle is unsolvable\n")), _ERROR);
 	SAFE(!(data = (t_data *) malloc(sizeof(t_data))), fprintf(stderr, "%s\n", strerror(errno)), _ERROR)
 	SAFE(!(data->position = init_goal_position(g_init_map)), free(data), _ERROR)
-	int s = Misplaced(g_init_map, data->position);
-	printf("[%d]\n", s);
+	// int s = Euclidean_distance(g_init_map, data->position);
+	// printf("[%f %d]\n", sqrt(s), Manhattan_distance(g_init_map, data->position));
 	print_map(g_init_map);
-	printf("\n");
+	printf("\n<<%d>>\n", inversion);
+
+	inversion = 0;
+	for (int i = 0; i < (g_size * g_size); i++)
+	{
+		inversion += Inversions_distance(g_init_map, i / g_size, i % g_size, i);
+		// printf("[%2d]  ", g_init_map[i / g_size][i % g_size]);
+		// if ((i + 1) % g_size == 0 )
+			// printf("\n");
+	}
+	printf("<<%d>>\n", inversion);
 
 	// int x = 0;
 	// int y = 0;
