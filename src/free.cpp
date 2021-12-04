@@ -70,3 +70,28 @@ void        ft_free_position(t_goalPosition *map)
         free(map);
     }
 }
+
+void        ft_free_queue(t_queue *q)
+{
+    t_queue     *tmp;
+
+    while (q)
+    {
+        tmp = q;
+        q = q->next;
+        ft_free_map(tmp->current_map, g_size);
+        free(tmp);
+    }
+}
+
+void        ft_free_child(int ***child, int len)
+{
+    while (len)
+    {
+        len--;
+        if (child[len])
+            ft_free_map(child[len], g_size);
+
+    }
+    
+}

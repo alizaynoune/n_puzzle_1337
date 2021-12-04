@@ -276,7 +276,7 @@ void print_map(int **map)
 	printf("%d\n", g_size);
 	for (int i = 0; i < (g_size * g_size); i++)
 	{
-		printf("%4d", g_init_map[i / g_size][i % g_size]);
+		printf("%4d", map[i / g_size][i % g_size]);
 		if ((i + 1) % g_size == 0)
 			printf("\n");
 	}
@@ -360,10 +360,11 @@ int main(int ac, char **av)
 	SAFE((inversion = count_inversions(g_init_map)) == -1, (ft_free_map(g_init_map, g_size), fprintf(stderr, "Duplicate value\n")), _ERROR)
 	SAFE(inversion % 2, (ft_free_map(g_init_map, g_size), fprintf(stderr, "This puzzle is unsolvable\n")), _ERROR);
 	SAFE(!(data = (t_data *) malloc(sizeof(t_data))), fprintf(stderr, "%s\n", strerror(errno)), _ERROR)
+	memset(data, 0, sizeof(t_data));
 	SAFE(!(data->position = init_goal_position(g_init_map, blank)), free(data), _ERROR)
 	g_goal_map = data->position;
-	print_map(g_init_map);
-	printf("\n<<%d>> %d %d\n", inversion, blank[0], blank[1]);
+	// print_map(g_init_map);
+	// printf("\n<<%d>> %d %d\n", inversion, blank[0], blank[1]);
 
 	// inversion = 0;
 	// for (int i = 0; i < (g_size * g_size); i++)
@@ -376,7 +377,14 @@ int main(int ac, char **av)
 	// printf("<<%d>>\n", inversion);
 	// ida_star(blank, 1);
 	// int h_id = 
-	solver(blank, 1, (g_flags & _G) ? greedy_search : ida_star);
+	if (solver(data, blank, 0, (g_flags & _G) ? greedy_search : ida_star) == _ERROR)
+	{
+		ft_free_map(g_init_map, g_size);
+		ft_free_position(data->position);
+		free(data);
+		return(_ERROR);
+	}
+	printf("s%d, t%d\n", data->space_complexity, data->time_complexity);
 	// print_map(g_init_map);
 
 	// int x = 0;

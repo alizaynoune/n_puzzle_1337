@@ -52,9 +52,11 @@ int     Inversions_distance(int **map, int y, int x)
 		action == _UP && x == end ? action = _RIGHT : 0;
 		action == _DOWN && x == start ? action = _LEFT : 0;
 		action == _RIGHT && y == end ? action = _DOWN : 0;
-         if (map[y][x] && map[y][x] < value)
+         if (map[y][x] < value)
         	inversions++;
+		// printf("[%d %d]", value, map[y][x]);
 	}
+	// printf("\n");
 	return (inversions);
 }
 

@@ -51,6 +51,9 @@ using namespace std;
 
 #define _MP		64
 
+
+#define _MAX_MOVE		4
+
 // 0 1 2 3
 
 /*
@@ -139,8 +142,8 @@ typedef struct s_queue
 	int h;
 	int f;
 	int blank[2];
-	int action;
-	t_map *current_map;
+	int move;
+	int **current_map;
 	int visited;
 	struct s_queue *next;
 	struct s_queue *prev;
@@ -153,14 +156,12 @@ typedef struct		s_data
 {
 	// int				blank[2];
 	int				time_complexity;
-	int				size_complexity;
+	int				space_complexity;
 	t_goalPosition	*position;
+	t_queue			*head;
+	t_queue			*curr;
+	t_queue			*last;
 }					t_data;
-
-// typedef int		(*t_tokenizer)(t_data *);
-
-// extern t_tokenizer	g_tokenizers[];
-
 
 typedef int (*t_heuristic)(int **, int, int);
 
@@ -170,6 +171,8 @@ void print_map(int **map);// for test
 
 void		ft_free_map(int **map, int size);
 void		ft_free_position(t_goalPosition *map);
+void        ft_free_queue(t_queue *q);
+void        ft_free_child(int ***child, int len);
 
 
 int     Misplaced_distance(int **map, int y, int x);
@@ -177,11 +180,11 @@ int     Manhattan_distance(int **map, int y, int x);
 int     Inversions_distance(int **map, int y, int x);
 int     Euclidean_distance(int **map, int y, int x);
 
-int         ida_star(int *blank, int h_id);
-int         greedy_search(int *blank, int h_id);
-int         a_star(int *blank, int h_id);
+int         ida_star(t_data *d, int *blank, int h_id);
+int         greedy_search(t_data *d, int *blank, int h_id);
+int         a_star(t_data *d, int *blank, int h_id);
 
-int         solver(int *blank, int h_id, int (algo)(int *, int));
+int         solver(t_data *d, int *blank, int h_id, int (algo)(t_data *, int *, int));
 
 
 #endif
