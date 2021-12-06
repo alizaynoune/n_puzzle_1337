@@ -32,8 +32,10 @@ static int parse_flags(char **av)
 			g_flags |= _E;
 		else if (!strcmp(av[1], "-m"))
 			g_flags |= _M;
-		else if (!strcmp(av[1], "-h"))
-			g_flags |= _H;
+		else if (!strcmp(av[1], "-mp"))
+			g_flags |= _MP;
+		else if(!strcmp(av[1], "-i"))
+			g_flags |= _I;
 		else
 		{
 			fprintf(stderr, "usage: ./n_puzzle [-ida] [-greedy] [-e] [-m] [-h]\n");
@@ -43,57 +45,6 @@ static int parse_flags(char **av)
 
 	return (_SUCCESS);
 }
-
-
-// static int goal_piece(int size, t_piece *piece, t_map *map_copy)
-// {
-// 	int action = _UP;
-// 	int x = 0;
-// 	int y = 0;
-// 	int start = 0;
-// 	int end = size - 1;
-
-// 	for (int i = 0; i < (size * size); i++)
-// 	{
-// 		if ((piece->value == 0 && i == ((size * size) - 1)) || (i == piece->value - 1))
-// 		{
-// 			if (map_copy[y].pieces[x].value || map_copy[y].pieces[x].g_x || map_copy[y].pieces[x].g_y)
-// 			{
-// 				free_map(map_copy, size);
-// 				throw(MyException("Duplicate value", ""));
-// 			}
-// 			// map_copy[y].pieces[x].g_x = x;
-// 			// map_copy[y].pieces[x].g_y = y;
-// 			piece->g_x = x;
-// 			piece->g_y = y;
-// 			memcpy(&map_copy[y].pieces[x], piece, sizeof(t_piece));
-// 			// map_copy[y].pieces[x].value = (piece->value) ? piece->value : -1;
-// 			return (_SUCCESS);
-// 		}
-// 		if (action == _UP && x < end)
-// 			x++;
-// 		else if (action == _DOWN && x > start)
-// 			x--;
-
-// 		else if (action == _RIGHT && y < end)
-// 			y++;
-// 		else if (action == _LEFT && y > start)
-// 			y--;
-// 		if (action == _LEFT && y == start)
-// 		{
-// 			action = _UP;
-// 			start++;
-// 			end--;
-// 			x = start;
-// 			y = start;
-// 		}
-// 		action == _UP &&x == end ? action = _RIGHT : 0;
-// 		action == _DOWN &&x == start ? action = _LEFT : 0;
-// 		action == _RIGHT &&y == end ? action = _DOWN : 0;
-// 	}
-
-// 	return (_FAILURE);
-// }
 
 static int help_inversions(int **map,int action, int start, int end, int x, int y, int i)
 {
@@ -273,7 +224,7 @@ static int parse_file(FILE *fd)
 
 void print_map(int **map)
 {
-	printf("%d\n", g_size);
+	// printf("%d\n", g_size);
 	for (int i = 0; i < (g_size * g_size); i++)
 	{
 		printf("%4d", map[i / g_size][i % g_size]);
@@ -351,6 +302,7 @@ int main(int ac, char **av)
 	t_data	*data = NULL;
 	int		inversion = 0;
 	int		blank[2] = {0, 0};
+	int		f_h = 0;
 
 	SAFE((ac != 4 && ac != 2), fprintf(stderr, "Usage: ./n_puzzle [file] -[flags]\n"), _ERROR)
 	SAFE(!(fd = fopen(av[1], "r")), fprintf(stderr, "%s %s\n", strerror(errno), av[1]), _ERROR)
@@ -363,24 +315,19 @@ int main(int ac, char **av)
 	memset(data, 0, sizeof(t_data));
 	SAFE(!(data->position = init_goal_position(g_init_map, blank)), free(data), _ERROR)
 	g_goal_map = data->position;
-	// print_map(g_init_map);
-	// printf("\n<<%d>> %d %d\n", inversion, blank[0], blank[1]);
-
-	// inversion = 0;
-	// for (int i = 0; i < (g_size * g_size); i++)
-	// {
-	// 	inversion += Manhattan_distance(g_init_map, i / g_size, i % g_size);
-	// 	// printf("[%2d]  ", g_init_map[i / g_size][i % g_size]);
-	// 	// if ((i + 1) % g_size == 0 )
-	// 		// printf("\n");
-	// }
-	// printf("<<%d>>\n", inversion);
-	// ida_star(blank, 1);
-	// int h_id = 
-	if (solver(data, blank, 0, (g_flags & _G) ? greedy_search : ida_star) == _ERROR)
+	f_h = (g_flags & _E) ? 1 : f_h;
+	f_h = (g_flags & _I) ? 2:f_h;
+	f_h = (g_flags & _MP) ? 3: f_h;
+	printf("\n%d\n", f_h);
+	if (solver(data, blank, f_h, (g_flags & _G) ? greedy_search : ida_star) == _ERROR)
 	{
 		ft_free_map(g_init_map, g_size);
 		ft_free_position(data->position);
+		// ft_free_map(data->up, g_size);
+		// ft_free_map(data->down, g_size);
+		// ft_free_map(data->left, g_size);
+		// ft_free_map(data->right, g_size);
+		ft_free_map(data->map, g_size);
 		free(data);
 		return(_ERROR);
 	}
@@ -420,7 +367,11 @@ int main(int ac, char **av)
 	// }
 	// if (data)
 	// 	delete data;
-	ft_free_map(g_init_map, g_size);
+	ft_free_map(data->map, g_size);
+	// ft_free_map(data->up, g_size);
+	// ft_free_map(data->down, g_size);
+	// ft_free_map(data->left, g_size);
+	// ft_free_map(data->right, g_size);
 	ft_free_position(data->position);
 	free(data);
 	

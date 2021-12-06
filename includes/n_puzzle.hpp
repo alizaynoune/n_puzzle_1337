@@ -50,6 +50,7 @@ using namespace std;
 #define _V 32
 
 #define _MP		64
+#define _I		128
 
 
 #define _MAX_MOVE		4
@@ -92,8 +93,8 @@ using namespace std;
 extern int g_flags;
 extern int g_size;
 // extern int g_heuristic;
-extern FILE *g_fd;
-extern int **g_init_map;
+extern FILE	*g_fd;
+extern int	**g_init_map;
 // extern int **g_goal_map;
 
 /* 
@@ -157,6 +158,8 @@ typedef struct		s_data
 	// int				blank[2];
 	int				time_complexity;
 	int				space_complexity;
+	int				**map;
+	// int				*blanks[_MAX_MOVE];
 	t_goalPosition	*position;
 	t_queue			*head;
 	t_queue			*curr;

@@ -8,7 +8,7 @@ t_goalPosition	*g_goal_map = NULL;
 t_heuristic     g_heuristic[4] =
 {
     Manhattan_distance,
-    Inversions_distance,
     Euclidean_distance,
+    Inversions_distance,
     Misplaced_distance,
 };
