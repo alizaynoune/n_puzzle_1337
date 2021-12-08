@@ -18,10 +18,12 @@ static int parse_flags(char **av)
 
 	// for (int i = 0; i < ac; i++)
 	// {
-		if (!strcmp(av[0], "-ida"))
+		if (!strcmp(av[0], "-idastar"))
 			g_flags |= _IDA;
 		else if (!strcmp(av[0], "-greedy"))
 			g_flags |= _G;
+		else if (!strcmp(av[0], "-astar"))
+			g_flags |= _A;
 		else
 		{
 			fprintf(stderr, "usage: ./n_puzzle [-ida] [-greedy] [-e] [-m] [-h]\n");
@@ -318,8 +320,8 @@ int main(int ac, char **av)
 	f_h = (g_flags & _E) ? 1 : f_h;
 	f_h = (g_flags & _I) ? 2:f_h;
 	f_h = (g_flags & _MP) ? 3: f_h;
-	printf("\n%d\n", f_h);
-	if (solver(data, blank, f_h, (g_flags & _G) ? greedy_search : ida_star) == _ERROR)
+	// printf("\n%d\n", f_h);
+	if (solver(data, blank, f_h, (g_flags & _G) ? greedy_search : (g_flags & _A) ? a_star : ida_star) == _ERROR)
 	{
 		ft_free_map(g_init_map, g_size);
 		ft_free_position(data->position);

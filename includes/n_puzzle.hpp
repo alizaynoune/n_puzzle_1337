@@ -37,21 +37,22 @@ using namespace std;
  * Macros flags
  */
 /* IDA* algorithm */
-#define _IDA 1
+#define		_IDA 1
+
+#define 	_A	2
 /* Greedy algorithm */
-#define _G 2
+#define 	_G 4
 /* Eucilidean distance */
-#define _E 4
+#define 	_E 8
 /* Manhattan distance */
-#define _M 8
+#define 	_M 16
 /* Heuristic */
-#define _H 16
+#define 	_H 32
 /* Visualization */
-#define _V 32
+#define 	_V 64
 
-#define _MP		64
-#define _I		128
-
+#define 	_MP	128
+#define 	_I	256
 
 #define _MAX_MOVE		4
 
@@ -159,6 +160,7 @@ typedef struct		s_data
 	int				time_complexity;
 	int				space_complexity;
 	int				**map;
+	int				f_bound;
 	// int				*blanks[_MAX_MOVE];
 	t_goalPosition	*position;
 	t_queue			*head;

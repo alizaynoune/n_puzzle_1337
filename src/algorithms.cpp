@@ -5,7 +5,7 @@
 
 void        print_queue(t_queue *tmp)
 {
-    printf("%d\n", tmp->h);
+    printf("%d   %d\n", tmp->h, tmp->g);
     print_map(tmp->current_map);
 }
 
@@ -124,166 +124,338 @@ void        copy_map(int **dest, int **src)
 }
 
 /* generate new child from current node */
-int         generated_child(t_data *d, int h_id)
+int         search_helper(t_data *d, int h_id, int limit)
 {
     int         move = _UP | _RIGHT | _DOWN | _LEFT;
-    int         moves[_MAX_MOVE] = {_UP, _DOWN, _LEFT, _RIGHT};
     int         **map = NULL;
-    int         distance[_MAX_MOVE] = {INT_MAX, INT_MAX, INT_MAX, INT_MAX};
-    bool        is_exists[_MAX_MOVE] = {true, true, true, true};
-    int         cmp_d = INT_MAX;
+    int         distance = INT_MAX;
+    int         dist_ret = INT_MAX;
     int         blanks[2];
     t_queue     *tmp = NULL;
+    t_queue     *tmp2 = NULL;
 
     d->curr->visited = 1;
+    if (limit && d->curr->g == limit)
+        return (_SUCCESS);
 
     (d->curr->move & _DOWN) || !(d->curr->blank[0]) ? move ^= _UP : 0;
     (d->curr->move & _LEFT) || (d->curr->blank[1] + 1 >= g_size) ? move ^= _RIGHT : 0;
     (d->curr->move & _RIGHT) || !(d->curr->blank[1]) ? move ^= _LEFT : 0;
     (d->curr->move & _UP) || (d->curr->blank[0] + 1 >= g_size) ? move ^= _DOWN : 0;
+    if (move & _DOWN){
+        // printf("DOWN\n");
+
+        if (!(map = new_map(d->curr->current_map)))
+                return (_ERROR);
+       
+        move_piece(map, d->curr->blank, _DOWN);
+        distance = ft_distance(map, g_heuristic[h_id]);
+        if (is_alredy_open(d, map) == false){
+            memcpy(blanks, d->curr->blank, sizeof(int) * 2);
+            // distance[1] = ft_distance(map, g_heuristic[h_id]);
+            blanks[0] += 1;
+            if (!(tmp = element_queue(map)))
+            {
+                ft_free_map(map, g_size);
+                return (_ERROR);
+            }
+            push_to_last(d, tmp, distance, blanks, _DOWN);
+            d->space_complexity++;
+            map = NULL;
+            if (distance <= dist_ret)
+            {
+                tmp2 = tmp;
+                dist_ret = distance;
+            }
+        }
+    }
+
 
     if (move & _UP){
         // printf("UP\n");
-        copy_map(d->map, d->curr->current_map);
-        move_piece(d->map, d->curr->blank, _UP);
-        if (is_alredy_open(d, d->map) == false)
-            distance[0] = ft_distance(d->map, g_heuristic[h_id]);
-        cmp_d > distance[0] ? cmp_d = distance[0] : 0;
-    }
-    if (move & _DOWN){
-        // printf("DOWN\n");
-        copy_map(d->map, d->curr->current_map);
-        move_piece(d->map, d->curr->blank, _DOWN);
-        if (is_alredy_open(d, d->map) == false)
-            distance[1] = ft_distance(d->map, g_heuristic[h_id]);
-        cmp_d > distance[1] ? cmp_d = distance[1] : 0;
-    }
-    if (move & _LEFT){
-        // printf("LEFT\n");
-        copy_map(d->map, d->curr->current_map);
-        move_piece(d->map, d->curr->blank, _LEFT);
-        if (is_alredy_open(d, d->map) == false)
-            distance[2] = ft_distance(d->map, g_heuristic[h_id]);
-        cmp_d > distance[2] ? cmp_d = distance[2] : 0;
+         if (map)
+            copy_map(map, d->curr->current_map);
+        else if (!(map = new_map(d->curr->current_map)))
+            return (_ERROR);
+        move_piece(map, d->curr->blank, _UP);
+        distance = ft_distance(map, g_heuristic[h_id]);
+        if (is_alredy_open(d, map) == false)
+        {
+            memcpy(blanks, d->curr->blank, sizeof(int) * 2);
+            blanks[0] -= 1;
+            if (!(tmp = element_queue(map)))
+            {
+                ft_free_map(map, g_size);
+                return (_ERROR);
+            }
+            push_to_last(d, tmp, distance, blanks, _UP);
+            d->space_complexity++;
+            map = NULL;
+             if (distance <= dist_ret)
+            {
+                tmp2 = tmp;
+                dist_ret = distance;
+            }
+        }
     }
     if (move & _RIGHT){
         // printf("RIGHT\n");
-        copy_map(d->map, d->curr->current_map);
-        move_piece(d->map, d->curr->blank, _RIGHT);
-        // if (is_alredy_open(d, d->map) == _FAILURE)
-        if (is_alredy_open(d, d->map) == false)
-            distance[3] = ft_distance(d->map, g_heuristic[h_id]);
-        cmp_d > distance[3] ? cmp_d = distance[3] : 0;
-    }
-    if (cmp_d == INT_MAX)
-        return (_SUCCESS);
-    for (int i = 0; i < _MAX_MOVE; i++)
-    {
-        if (cmp_d == distance[i])
-        {
-            // printf("[%d]\n", moves[i]);
-            if (!(map = new_map(d->curr->current_map)))
-                return (_ERROR);
-            move_piece(map, d->curr->blank, moves[i]);
+        if (map)
+            copy_map(map, d->curr->current_map);
+        else if (!(map = new_map(d->curr->current_map)))
+            return (_ERROR);
+        move_piece(map, d->curr->blank, _RIGHT);
+        distance = ft_distance(map, g_heuristic[h_id]);
+        if (is_alredy_open(d, map) == false){
             memcpy(blanks, d->curr->blank, sizeof(int) * 2);
-             d->space_complexity++;
+            blanks[1] += 1;
             if (!(tmp = element_queue(map)))
             {
-                // ft_free_child(maps, _MAX_MOVE);
-                // free(distance);
-                free(map);
+                ft_free_map(map, g_size);
                 return (_ERROR);
             }
-            moves[i] & _UP ? blanks[0] -= 1 : 0;
-            moves[i] & _DOWN ? blanks[0] += 1 : 0;
-            moves[i] & _RIGHT ? blanks[1] += 1 : 0;
-            moves[i] & _LEFT ? blanks[1] -= 1 : 0;
-            push_to_last(d, tmp, cmp_d, blanks, moves[i]);
-            // break;
+            push_to_last(d, tmp, distance, blanks, _RIGHT);
+            d->space_complexity++;
+            map = NULL;
+             if (distance <= dist_ret)
+            {
+                tmp2 = tmp;
+                dist_ret = distance;
+            }
         }
     }
-    if (tmp){
-        d->curr = tmp;
+    if (move & _LEFT){
+        // printf("LEFT\n");
+        if (map)
+            copy_map(map, d->curr->current_map);
+        else if (!(map = new_map(d->curr->current_map)))
+            return (_ERROR);
+        move_piece(map, d->curr->blank, _LEFT);
+        distance = ft_distance(map, g_heuristic[h_id]);
+        if (is_alredy_open(d, map) == false){
+            memcpy(blanks, d->curr->blank, sizeof(int) * 2);
+            blanks[1] -= 1;
+            if (!(tmp = element_queue(map)))
+            {
+                ft_free_map(map, g_size);
+                return (_ERROR);
+            }
+            push_to_last(d, tmp, distance, blanks, _LEFT);
+            d->space_complexity++;
+            map = NULL;
+             if (distance <= dist_ret)
+            {
+                tmp2 = tmp;
+                dist_ret = distance;
+            }
+        }
+    }
+    if (tmp2){
+        d->curr = tmp2;
         d->time_complexity++;
     }
+    if (map)
+        ft_free_map(map, g_size);
+    // printf("[%d]\n", move);
     return (_SUCCESS);
 }
 
 
-// ft_lstdel(t_list **alst, void (*del)(void *, size_t))
-int         ida_star(t_data *d,int *blank, int h_id)
-{
 
-    // ft_distance(g_init_map, g_heuristic[h_id]);
-    // if (move_piece(g_init_map, blank, _UP) == _SUCCESS)
-    //     print_map(g_init_map);
-    return (_SUCCESS);
+void        print_solution(t_data *d)
+{
+    t_queue     *tmp = d->curr;
+    int         moves = 0;
+
+    while (tmp)
+    {
+        if (tmp->parent)
+        {
+            tmp->parent->child = tmp;
+        }
+        tmp = tmp->parent;
+    }
+    tmp = d->head;
+    while (tmp)
+    {
+        printf("%d\n", tmp->h);
+        print_map(tmp->current_map);
+        printf("\n");
+        moves++;
+        tmp = tmp->child;
+    }
+    printf("[%d]\n", moves);
+    
+    
 }
 
-void        free_curr_node(t_queue *curr)
+
+t_queue     *bfs(t_data *d)
 {
-    if (curr->next)
-        curr->next->prev = curr->prev;
-    if (curr->prev)
-        curr->prev->next = curr->next;
-    ft_free_map(curr->current_map, g_size);
-    free(curr);
+    t_queue     *tmp = d->last;
+    t_queue     *tmp2 = d->curr;
+    int         cmp = INT_MAX;
+
+    while (tmp)
+    {
+        if (!tmp->visited && tmp->h < cmp)
+        {
+            cmp = tmp->h;
+            tmp2 = tmp;
+        }
+        tmp = tmp->prev;
+    }
+
+    return (tmp2);
 }
+
+
 
 
 
 int         greedy_search(t_data *d, int *blank, int h_id)
 {
-    int         h               = 0;
-    int         old_move        = 0;
-    t_queue     *tmp            = NULL;
+    t_queue     *tmp            = d->curr;
     int         ret_gen         = _SUCCESS;
-    int         dest            = 0;
 
-    if (!(d->curr = element_queue(g_init_map)))
-        return (_ERROR);
-    d->space_complexity++;
-    d->head = d->curr;
-    d->last = d->curr;
-    d->curr->h = ft_distance(d->curr->current_map, g_heuristic[h_id]);
-    dest = d->curr->h;
-    memcpy(d->curr->blank, blank, sizeof(int) * 2);
-    
-
-    while (d->curr && ret_gen == _SUCCESS)
+    printf("greedy\n");
+    while (d->curr)
     {
-        if (!d->curr->visited){
-            ret_gen = generated_child(d, h_id);
-            // print_queue(d->curr);
-            // d->curr = d->curr->next;
-            // usleep(100000);
+        print_queue(d->curr);
+        // printf("\n%d\n", d->curr->visited);
+        if (d->curr && !d->curr->visited)
+        {
+           if (d->curr->parent && d->curr->h > d->curr->parent->h)
+                d->curr = bfs(d);
+            if (search_helper(d, h_id, 0) == _ERROR)
+            {
+                ft_free_queue(d->head);
+                return (_ERROR);
+            }
         }
-        else{
-            // printf("%dprev\n", d->curr->h);
-            // tmp = d->curr;
+        else
             d->curr = d->curr->prev;
-            // d->space_complexity--;
-            // free_curr_node(tmp);
-        }
         if (d->curr && d->curr->h == 0)
             break;
-        // else
-        //     d->curr = d->curr->next;
     }
 
 
 
 
 
-    printf("\n");
+    // printf("\n");
     if (d->curr)
-        print_map(d->curr->current_map);
+        print_solution(d);
+    ft_free_queue(d->head);
     return (_SUCCESS);
+}
+
+int         ida_star_helper(t_data *d, int limit, int bound, int h_id)
+{
+    // int         new_bound = INT_MAX;
+    while (d->curr)
+    {
+         print_queue(d->curr);
+        if (d->curr && !d->curr->visited)
+        {
+            if (search_helper(d, h_id, limit) == _ERROR)
+                return (_ERROR);
+            printf("%d\n", d->curr->h + d->curr->g);
+        }
+        else
+            d->curr = d->curr->prev;
+        if (d->curr && !d->curr->h)
+            return (_SUCCESS);
+    }
+
+    return (_FAILURE);
+}
+
+
+int         ida_star(t_data *d,int *blank, int h_id)
+{
+    int         limit = 1;
+    int         ret = _SUCCESS;
+    int         sc = 0;
+    int         tc = 0;
+    d->f_bound = INT_MAX;
+
+
+    while (ida_star_helper(d, limit, d->f_bound, h_id) == _FAILURE)
+    {
+        limit++;
+        // bound = d->curr->g + d->curr->h;
+        ft_free_queue(d->head->next);
+        d->curr = d->head;
+        d->last = d->head;
+        d->space_complexity = 1;
+        d->time_complexity = 1;
+        d->head->visited = 0;
+    }
+    
+
+    
+    
+
+
+    
+    return (_SUCCESS);
+}
+
+t_queue     *help_star(t_data *d)
+{
+    t_queue     *tmp = d->last;
+    t_queue     *tmp2 = d->curr;
+    int         bound = INT_MAX;
+    
+    while (tmp)
+    {
+        if (!tmp->visited && (tmp->h + tmp->g) < bound)
+        {
+            tmp2 = tmp;
+            bound = tmp->h + tmp->g;
+        }
+        tmp = tmp->prev;
+    }
+    return (tmp2);
+    
 }
 
 
 int         a_star(t_data *d, int *blank, int h_id)
 {
+        t_queue     *tmp            = d->curr;
+    int         ret_gen         = _SUCCESS;
+
+
+    while (d->curr)
+    {
+        print_queue(d->curr);
+        
+        if (d->curr && !d->curr->visited)
+        {
+           if (d->curr->parent && d->curr->h > d->curr->parent->h)
+                d->curr = help_star(d);
+            if (search_helper(d, h_id, 0) == _ERROR)
+            {
+                ft_free_queue(d->head);
+                return (_ERROR);
+            }
+        }
+        else
+            d->curr = d->curr->prev;
+        if (d->curr && d->curr->h == 0)
+            break;
+    }
+
+
+
+
+
+    printf("A star\n");
+    if (d->curr)
+        print_solution(d);
+    ft_free_queue(d->head);
 
     return (_SUCCESS);
 }
@@ -292,16 +464,17 @@ int         solver(t_data *d, int *blank, int h_id, int (algo)(t_data *, int *, 
 {
     if (!(d->map = new_map(g_init_map)))
         return (_ERROR);
+    if (!(d->curr = element_queue(g_init_map)))
+        return (_ERROR);
+    d->space_complexity++;
+    d->time_complexity++;
+    d->head = d->curr;
+    d->last = d->curr;
+    d->head->g = 1;
+    d->curr->h = ft_distance(d->curr->current_map, g_heuristic[h_id]);
+    memcpy(d->curr->blank, blank, sizeof(int) * 2);
     SAFE((algo(d, blank, h_id) == _ERROR), ft_free_queue(d->head), _ERROR)
 
-    ft_free_queue(d->head);
-    return (_SUCCESS);
-}
-
-
-int         dfs(int **map)
-{
-
-
+    // ft_free_queue(d->head);
     return (_SUCCESS);
 }
