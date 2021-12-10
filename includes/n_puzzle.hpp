@@ -96,6 +96,7 @@ extern int g_size;
 // extern int g_heuristic;
 extern FILE	*g_fd;
 extern int	**g_init_map;
+extern int	g_actions[_MAX_MOVE];
 // extern int **g_goal_map;
 
 /* 
