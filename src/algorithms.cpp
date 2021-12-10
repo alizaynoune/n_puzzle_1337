@@ -282,13 +282,17 @@ t_queue     *bfs(t_data *d)
 t_queue        *ft_back(t_data *d)
 {
     t_queue     *tmp = d->last;
-    t_queue     *back = d->last;
+    t_queue     *back = NULL;
+    int         bound = INT_MAX;
 
     while (tmp)
     {
         // printf("v");
-        if (!tmp->visited && tmp->h <= back->h)
+        if (!tmp->visited && tmp->h <= bound)
+        {
             back = tmp;
+            bound = tmp->h;
+        }
         tmp = tmp->prev;
     }
     return (back);
@@ -320,44 +324,18 @@ int         greedy_search(t_data *d, int *blank, int h_id)
                 tmp->prev = d->last;
                 d->last = last;
                 d->curr = last;
-                if (d->curr->h > d->curr->parent->h)
+                if (d->curr->h >= d->curr->parent->h)
                     d->curr = ft_back(d);
             }
             print_queue(d->curr);
         }
         else
-            d->curr = d->curr->prev;
+            d->curr = ft_back(d);
         // usleep(100000);
         // printf(">>>%d\n", ret_open);
         if (d->curr && !d->curr->h)
             break;
     }
-
-
-    // open_node(d, d->curr, &tmp, h_id);
-    // while (d->curr)
-    // {
-    //     if (d->curr && !d->curr->visited)
-    //     {
-    //         print_queue(d->curr);
-    //     //    if (d->curr->parent && d->curr->h >= d->curr->parent->h)
-    //         d->curr = bfs(d);
-    //         // if (!open_node(d, h_id))
-    //         // {
-    //         //     ft_free_queue(d->head);
-    //         //     return (_ERROR);
-    //         // }
-    //     }
-    //     else
-    //         d->curr = d->curr->next;
-    //     if (d->curr && d->curr->h == 0)
-    //         break;
-    // }
-
-
-
-
-
     printf("\n");
     if (d->curr)
         print_solution(d);
@@ -419,58 +397,64 @@ int         ida_star(t_data *d,int *blank, int h_id)
 
 t_queue     *help_star(t_data *d)
 {
-    t_queue     *tmp = d->curr;
-    t_queue     *tmp2 = d->last;
+    t_queue     *tmp = d->last;
+    t_queue     *back = NULL;
     int         bound = INT_MAX;
     
     while (tmp)
     {
-        if (!tmp->visited && (tmp->h + tmp->g) < (tmp2->h + tmp->g))
+        if (!tmp->visited && (tmp->h + tmp->g) <= bound)
         {
-            tmp2 = tmp;
+            back = tmp;
             bound = tmp->h + tmp->g;
         }
         tmp = tmp->prev;
     }
-    return (tmp2);
+    return (back);
     
 }
 
 
 int         a_star(t_data *d, int *blank, int h_id)
 {
-        t_queue     *tmp            = d->curr;
-    int         ret_gen         = _SUCCESS;
+    t_queue     *tmp            = NULL;
+    t_queue     *last           = NULL;
+    t_queue     *curr          = d->curr;
+    int         ret_open        = _SUCCESS;
 
 
-    // while (d->curr)
-    // {
-    //     print_queue(d->curr);
-        
-    //     if (!d->curr->visited)
-    //     {
-    //         // d->curr = help_star(d);
-    //         if (search_helper(d, h_id, 0) == _ERROR)
-    //         {
-    //             ft_free_queue(d->head);
-    //             return (_ERROR);
-    //         }
-    //     }
-    //     else
-    //         d->curr = d->curr->prev;
-    //     if (d->curr && d->curr->h == 0)
-    //         break;
-    // }
-
-
-
-
-
-    // printf("A star\n");
+    while (d->curr)
+    {
+        tmp = NULL;
+        last = NULL;
+        if (!d->curr->visited)
+        {
+            if ((ret_open = open_node(d, d->curr, &tmp, &last, h_id)) == _FAILURE)
+                d->curr = d->curr->prev;
+            else if (ret_open == _ERROR)
+                return (_ERROR);
+            else if (tmp)
+            {
+                d->last->next = tmp;
+                tmp->prev = d->last;
+                d->last = last;
+                d->curr = last;
+                if ((d->curr->h + d->curr->g) >= (d->curr->parent->h + d->curr->parent->g))
+                    d->curr = help_star(d);
+            }
+            print_queue(d->curr);
+        }
+        else
+            d->curr = help_star(d);
+        // usleep(100000);
+        // printf(">>>%d\n", ret_open);
+        if (d->curr && !d->curr->h)
+            break;
+    }
+    printf("\n");
     if (d->curr)
         print_solution(d);
     ft_free_queue(d->head);
-
     return (_SUCCESS);
 }
 

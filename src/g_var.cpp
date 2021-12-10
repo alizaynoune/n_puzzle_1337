@@ -5,7 +5,7 @@ int     g_size = 0;
 FILE    *g_fd = NULL;
 int     **g_init_map = NULL;
 t_goalPosition	*g_goal_map = NULL;
-int             g_actions[4] = {_LEFT, _RIGHT, _DOWN, _UP};
+int             g_actions[4] = { _UP, _DOWN, _RIGHT, _LEFT};
 t_heuristic     g_heuristic[4] =
 {
     Manhattan_distance,
