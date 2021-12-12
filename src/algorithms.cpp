@@ -172,6 +172,7 @@ void        push_to_queue(t_queue **queue, t_queue *node, t_queue *parent, t_que
 int         open_node(t_data *d, t_queue *node, t_queue **queue, t_queue **last, int id_heuristic)
 {
     int         move = _UP | _RIGHT | _DOWN | _LEFT;
+    // int         actions = {M_UP, M_RIGHT, M_DOWN, M_LEFT};
     int         **map = NULL;
     int         distance = INT_MAX;
     int         blanks[2];
@@ -283,8 +284,8 @@ t_queue     *bfs(t_data *d)
 t_queue        *ft_back(t_data *d)
 {
     t_queue     *tmp = d->last;
-    t_queue     *back = NULL;
-    int         bound = INT_MAX;
+    t_queue     *back = d->curr;
+    int         bound = d->curr->h;
 
     while (tmp)
     {
@@ -325,13 +326,20 @@ int         greedy_search(t_data *d, int *blank, int h_id)
                 tmp->prev = d->last;
                 d->last = last;
                 d->curr = last;
-                if (d->curr->h >= d->curr->parent->h)
+                if (d->curr && !d->curr->h)
+                    break;
+                if (d->curr->h > d->curr->parent->h)
                     d->curr = ft_back(d);
             }
+            if (d->curr)
             print_queue(d->curr);
         }
         else
+        {
+            d->curr = d->curr->prev;
+            if (d->curr)
             d->curr = ft_back(d);
+        }
         // usleep(100000);
         // printf(">>>%d\n", ret_open);
         if (d->curr && !d->curr->h)
@@ -347,7 +355,7 @@ int         greedy_search(t_data *d, int *blank, int h_id)
 t_queue         *ida_star_helper(t_data *d, int limit, int bound)
 {
     t_queue     *tmp = d->last;
-    t_queue     *back = NULL;
+    t_queue     *back = d->curr;
     // int         bound = INT_MAX;
     
     while (tmp)
@@ -417,11 +425,16 @@ int         ida_star(t_data *d,int *blank, int h_id)
                     // if (d->curr)
                     // n_bound = d->curr->h + d->curr->g;
                 }
+                if (d->curr)
+                    print_queue(d->curr);
             }
                 
         }
-        else if (d->curr)
+        else
+        {
             d->curr = d->curr->prev;
+             d->curr = ida_star_helper(d, limit, bound);
+        }
             // d->curr = ida_star_helper(d, limit, bound);
         
         if (d->curr && !d->curr->h)
@@ -457,18 +470,30 @@ int         ida_star(t_data *d,int *blank, int h_id)
 t_queue     *help_star(t_data *d)
 {
     t_queue     *tmp = d->last;
-    t_queue     *back = NULL;
+    t_queue     *back = d->curr;
+    int         bound_h = d->curr->h;
+    // t_queue     *cmp_back = NULL;
+    int         bound_g = d->curr->g;
     int         bound = INT_MAX;
-    
+
     while (tmp)
     {
-        if (!tmp->visited && (tmp->h + tmp->g) <= bound)
+        if (!tmp->visited && (tmp->h <= bound_h && tmp->g <= bound_g))
         {
             back = tmp;
-            bound = tmp->h + tmp->g;
+            bound_h = tmp->h;
+            bound_g = tmp->g;
+            bound   = tmp->h + tmp->g;
+            // if (tmp->h < tmp->parent->h)
+            //     cmp_back = tmp;
         }
         tmp = tmp->prev;
     }
+    // if (cmp_back && cmp_back != back)
+    // {
+    //     if (cmp_back->h == back->h)
+    //         back = cmp_back;
+    // }
     return (back);
     
 }
@@ -480,6 +505,7 @@ int         a_star(t_data *d, int *blank, int h_id)
     t_queue     *last           = NULL;
     t_queue     *curr          = d->curr;
     int         ret_open        = _SUCCESS;
+    int         bound           = INT_MAX;
 
 
     while (d->curr)
@@ -488,6 +514,7 @@ int         a_star(t_data *d, int *blank, int h_id)
         last = NULL;
         if (!d->curr->visited)
         {
+            // bound = d->curr->h + d->curr->g;
             if ((ret_open = open_node(d, d->curr, &tmp, &last, h_id)) == _ERROR)
                 return (_ERROR);
             else if (tmp)
@@ -496,21 +523,31 @@ int         a_star(t_data *d, int *blank, int h_id)
                 tmp->prev = d->last;
                 d->last = last;
                 d->curr = last;
-                if (d->curr->parent || (d->curr->h + d->curr->g) >= (d->curr->parent->h + d->curr->parent->g))
+                // if (d->curr && !d->curr->h)
+                    // break;
+                if (d->curr->h > d->curr->parent->h)
                     d->curr = help_star(d);
             }
             if (d->curr)
             print_queue(d->curr);
         }
         else
+        {
+            d->curr = d->curr->prev;
             d->curr = help_star(d);
+
+        }
+        // if (d->curr)
+            
         // if ((d->curr->h + d->curr->g) >= (d->curr->parent->h + d->curr->parent->g))
         //             d->curr = help_star(d);
         if (d->curr && !d->curr->h)
             break;
+        
+        
         // tmp = NULL;
     }
-    printf("\n");
+    printf("\n ==================================\n");
     if (d->curr)
         print_solution(d);
     ft_free_queue(d->head);

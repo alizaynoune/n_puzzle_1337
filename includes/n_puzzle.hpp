@@ -99,6 +99,7 @@ extern int	**g_init_map;
 extern int	g_actions[_MAX_MOVE];
 // extern int **g_goal_map;
 
+
 /* 
  * Define Return Errors
  */
