@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   heuristic.cpp                                      :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: alzaynou <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/12/14 12:31:12 by alzaynou          #+#    #+#             */
+/*   Updated: 2021/12/14 12:31:15 by alzaynou         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "n_puzzle.hpp"
 
 int     Euclidean_distance(int **map, int y, int x)
@@ -63,5 +75,19 @@ int     Misplaced_distance(int **map, int y, int x)
     t_position      *ptr = &g_goal_map[map[y][x] / g_size].pos[map[y][x] % g_size];
     return ((ptr->y == y && ptr->x == x) ? 0 : 1);
 }
+
+int         ft_distance(int **map, int (heuristic)(int **, int, int))
+{
+    int distance = 0;
+
+    for (int i = 0; i < (g_size * g_size); i++)
+    {
+        if (map[i / g_size][i % g_size])
+            distance += heuristic(map, i / g_size, i % g_size);
+    }
+    
+    return(distance);
+}
+
 
 

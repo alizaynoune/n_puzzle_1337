@@ -15,18 +15,13 @@
 /* handle flags */
 static int parse_flags(char **av)
 {
-
-	// for (int i = 0; i < ac; i++)
-	// {
-		if (!strcmp(av[0], "-idastar"))
-			g_flags |= _IDA;
-		else if (!strcmp(av[0], "-greedy"))
+		if (!strcmp(av[0], "-greedy"))
 			g_flags |= _G;
 		else if (!strcmp(av[0], "-astar"))
 			g_flags |= _A;
 		else
 		{
-			fprintf(stderr, "usage: ./n_puzzle [-ida] [-greedy] [-e] [-m] [-h]\n");
+			fprintf(stderr, "usage: ./n_puzzle file [-astar] [-greedy] [-m] [-e] [-i] [-mp]\n");
 			return (_ERROR);
 		}
 
@@ -40,14 +35,14 @@ static int parse_flags(char **av)
 			g_flags |= _I;
 		else
 		{
-			fprintf(stderr, "usage: ./n_puzzle [-ida] [-greedy] [-e] [-m] [-h]\n");
+			fprintf(stderr, "usage: ./n_puzzle file [-astar] [-greedy] [-m] [-e] [-i] [-mp]\n");
 			return (_ERROR);
 		}
-	// }
 
 	return (_SUCCESS);
 }
 
+/* helper function to calulate the inverse of a number */
 static int help_inversions(int **map,int action, int start, int end, int x, int y, int i)
 {
 	int count = 0;
@@ -77,13 +72,13 @@ static int help_inversions(int **map,int action, int start, int end, int x, int 
 		if (map[y][x] && map[y][x] < value)
 			count++;
 		else if (map[y][x] == value)
-			return (-1); // where duplicate value
+			return (_ERROR); // where duplicate value
 		i++;
 	}
 	return (count);
 }
 
-/* check if map is solvable */
+/* calculate the inversions of the map */
 static int count_inversions(int **map)
 {
 	int count = 0;
@@ -100,15 +95,14 @@ static int count_inversions(int **map)
 		if (map[y][x])
 		{
 			if ((inversions = help_inversions(map, action, start, end, x, y, i + 1)) == -1)
-				return (-1);
+				return (_ERROR);
 			count += inversions;
 		}
 		else{
 			blank++;
 			if (blank > 1)
-				return (-1);
+				return (_ERROR);
 		}
-		// printf("%4d", map[y][x]);
 		if (action == _UP && x < end)
 			x++;
 		else if (action == _DOWN && x > start)
@@ -129,7 +123,6 @@ static int count_inversions(int **map)
 		action == _DOWN &&x == start ? action = _LEFT : 0;
 		action == _RIGHT &&y == end ? action = _DOWN : 0;
 	}
-	// printf("%d\n", count);
 	return (count);
 }
 
@@ -224,28 +217,16 @@ static int parse_file(FILE *fd)
 	return (_SUCCESS);
 }
 
-void print_map(int **map)
-{
-	// printf("%d\n", g_size);
-	for (int i = 0; i < (g_size * g_size); i++)
-	{
-		printf("%4d", map[i / g_size][i % g_size]);
-		if ((i + 1) % g_size == 0)
-			printf("\n");
-	}
-}
 
+/* calculate the goal position */
 void					goal_position(int value, int *y, int *x)
 {
-	int count = 0;
 	int action = _UP;
 	int start = 0;
 	int end = g_size - 1;
 	int i = 0;
 
-	// printf("<%d ", value);
 	value = value == 0 ? g_size * g_size : value - 1;
-	// value--;
 	while (i < value)
 	{
 		if (action == _UP && *x < end)
@@ -269,11 +250,10 @@ void					goal_position(int value, int *y, int *x)
 		action == _RIGHT && *y == end ? action = _DOWN : 0;
 		i++;
 	}
-	// printf("%d %d>\n",*y, *x);
 }
 
 
-
+/* init goal map */
 t_goalPosition		*init_goal_position(int **map, int *blank)
 {
 	t_goalPosition	*new_map = NULL;
@@ -291,9 +271,7 @@ t_goalPosition		*init_goal_position(int **map, int *blank)
 				blank[0] = i;
 				blank[1] = j;
 			}
-			// printf("[%4d, %d, %d]", (i * g_size) + j, new_map[i].pos[j].y, new_map[i].pos[j].x);
 		}
-		// printf("\n");
 	}
 	return (new_map);
 }
@@ -306,13 +284,14 @@ int main(int ac, char **av)
 	int		blank[2] = {0, 0};
 	int		f_h = 0;
 
-	SAFE((ac != 4 && ac != 2), fprintf(stderr, "Usage: ./n_puzzle [file] -[flags]\n"), _ERROR)
+	SAFE((ac != 4 && ac != 2), fprintf(stderr, "usage: ./n_puzzle file [-astar] [-greedy] [-m] [-e] [-i] [-mp]\n"), _ERROR)
 	SAFE(!(fd = fopen(av[1], "r")), fprintf(stderr, "%s %s\n", strerror(errno), av[1]), _ERROR)
 	SAFE((ac == 4 && parse_flags(&av[2]) == _ERROR), fclose(fd), _ERROR)
 	SAFE(parse_file(fd) == _ERROR, ft_free_map(g_init_map, g_size), _ERROR)
 	fclose(fd);
 	SAFE((inversion = count_inversions(g_init_map)) == -1, (ft_free_map(g_init_map, g_size), fprintf(stderr, "Duplicate value\n")), _ERROR)
-	SAFE(inversion % 2, (ft_free_map(g_init_map, g_size), fprintf(stderr, "This puzzle is unsolvable\n")), _ERROR);
+	SAFE(!inversion, (ft_free_map(g_init_map, g_size), fprintf(stderr, "Is already solved\n")), _ERROR)
+	SAFE(inversion % 2, (ft_free_map(g_init_map, g_size), fprintf(stderr, "This puzzle is unsolvable\n")), _ERROR)
 	SAFE(!(data = (t_data *) malloc(sizeof(t_data))), fprintf(stderr, "%s\n", strerror(errno)), _ERROR)
 	memset(data, 0, sizeof(t_data));
 	SAFE(!(data->position = init_goal_position(g_init_map, blank)), free(data), _ERROR)
@@ -320,60 +299,15 @@ int main(int ac, char **av)
 	f_h = (g_flags & _E) ? 1 : f_h;
 	f_h = (g_flags & _I) ? 2:f_h;
 	f_h = (g_flags & _MP) ? 3: f_h;
-	// printf("\n%d\n", f_h);
-	if (solver(data, blank, f_h, (g_flags & _G) ? greedy_search : (g_flags & _A) ? a_star : ida_star) == _ERROR)
+	if (solver(data, blank, f_h, (g_flags & _G) ? greedy_search : a_star) == _ERROR)
 	{
 		ft_free_map(g_init_map, g_size);
 		ft_free_position(data->position);
-		// ft_free_map(data->up, g_size);
-		// ft_free_map(data->down, g_size);
-		// ft_free_map(data->left, g_size);
-		// ft_free_map(data->right, g_size);
 		ft_free_map(data->map, g_size);
 		free(data);
 		return(_ERROR);
 	}
-	printf("s%d, t%d\n", data->space_complexity, data->time_complexity);
-	// print_map(g_init_map);
-
-	// int x = 0;
-	// int y = 0;
-	// goal_position(0, &y, &x);
-	// printf("%d, %d\n", y, x);
-	// init_data();
-	// printf("%d\n", ++g_size);
-	// try
-	// {
-	// 	data = new Data();
-	// 	if (ac <= 1)
-	// 		throw(MyException("No arguments", ""));
-	// 	parse_flags(av, ac, data);
-	// 	parse_file(data);
-	// 	fclose(data->fd);
-	// 	data->fd = NULL;
-	// 	validation_map(data);
-	// 	if (count_inversions(data) == _FAILURE)
-	// 		throw(MyException("This puzzle is unsolvable", ""));
-	// 	data->print_map(data->map);
-	// 	printf("\n");
-	// 	greedy = new Greedy();
-	// 	greedy->greedy_search(data);
-	// 	delete(greedy);
-
-	// }
-	// catch (MyException &e)
-	// {
-	// 	e.print_msg();
-	// 	delete data;
-	// 	return (_FAILURE);
-	// }
-	// if (data)
-	// 	delete data;
 	ft_free_map(data->map, g_size);
-	// ft_free_map(data->up, g_size);
-	// ft_free_map(data->down, g_size);
-	// ft_free_map(data->left, g_size);
-	// ft_free_map(data->right, g_size);
 	ft_free_position(data->position);
 	free(data);
 	
