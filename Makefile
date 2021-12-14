@@ -12,8 +12,8 @@
 
 # Name of out
 NAME = n_puzzle
-# VISUL = visul
 
+GPP = g++
 # Flags
 FLAGS = -Wall -Werror -Wextra
 
@@ -22,7 +22,6 @@ PATH_SRC = src/
 PATH_OBJ = obj/
 PATH_INC = includes/
 INC_NAME = n_puzzle.hpp
-# PATH_VISUL = src/visul/
 
 # File srcs
 FILES =	g_var.cpp\
@@ -32,10 +31,6 @@ FILES =	g_var.cpp\
 		algorithms.cpp\
 		utils.cpp
 
-
-# SRC
-SRC = $(addprefix $(PATH_PARSE), $(FILES))
-
 # include
 INC = $(addprefix $(PATH_INC), $(INC_NAME))
 
@@ -43,45 +38,53 @@ INC = $(addprefix $(PATH_INC), $(INC_NAME))
 OBJS = $(addprefix $(PATH_OBJ), $(FILES:.cpp=.o))
 
 
+#*
+#** Colors
+#*
+
+DEF = 		\x1B[1;0m
+RED = 		\x1B[1;31m
+PURPLE =	\x1B[1;34m
+BLUE = 		\x1B[1;96m
+GREEN = 	\x1B[1;32m
+SILVER = 	\x1B[1;90m
+YELLOW = 	\x1B[1;33m
+
+
+#*
+#** create objects
+#*
+
 define	to_objects
-
-echo $(OBJS)
-mkdir -p $(PATH_OBJ)
-g++ $(FLAGS)  -c $1 -o $2 -I $(PATH_INC)
-
+@mkdir -p $(PATH_OBJ)
+@$(GPP) $(FLAGS)  -c $1 -o $2 -I $(PATH_INC)
+@printf "$(SILVER)[$(PURPLE)Object file$(BLUE) $(notdir $2)$(SILVER)] $(GREEN)Created.$(DEF)\n"
 endef
 
+#*
+#** create binary file
+#*
 define	to_binary
-
-g++ -g $1 -o $2 -I $(PATH_INC)
-
+@$(GPP) -g $1 -o $2 -I $(PATH_INC)
+@printf "$(SILVER)[$(PURPLE)Binary file$(BLUE) $(notdir $(NAME))$(SILVER)] $(GREEN)Created.$(DEF)\n"
 endef
-
 
 all: $(NAME)
 
 $(NAME): $(OBJS)
 	$(call to_binary, $(OBJS), $(NAME))
 
-$(OBJS)%.o: $(SRC)%.cpp $(INC)
+$(PATH_OBJ)%.o: $(PATH_SRC)%.cpp $(INC)
 	$(call to_objects, $<, $@)
 
-# $(PATH_OBJ)%.o: $(PATH_CLASS)%.cpp
-# 	$(call to_objects, $<, $@)
-
-# $(VISUL): $(OBJS_VISUL)
-# 	$(call to_binary, $(OBJS_VISUL), $(VISUL))
-
-# $(PATH_OBJ)%.o: $(PATH_VISUL)%.cpp
-# 	$(call to_objects, $<, $@)
-
-
 clean:
-	rm -rf $(PATH_OBJ)
+	@rm -rf $(PATH_OBJ)
+	@printf "$(SILVER)[$(PURPLE)Objects path $(YELLOW)$(PATH_OBJ)$(SILVER)] $(RED)deleted.$(DEF)\n"
 
 fclean: clean
-	rm -rf $(NAME) $(VISUL)
+	@rm -rf $(NAME) $(VISUL)
+	@printf "$(SILVER)[$(PURPLE)File binary $(YELLOW)$(NAME)$(SILVER)] $(RED)deleted.$(DEF)\n"
 
 re: fclean all
 
-.PHONY: all clean fclean re visul
+.PHONY: all clean fclean re

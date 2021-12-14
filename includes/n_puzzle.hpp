@@ -142,7 +142,6 @@ void print_map(int **map);
 void		ft_free_map(int **map, int size);
 void		ft_free_position(t_goalPosition *map);
 void        ft_free_queue(t_queue *q);
-void        ft_free_child(int ***child, int len);
 int			Misplaced_distance(int **map, int y, int x);
 int			Manhattan_distance(int **map, int y, int x);
 int			Inversions_distance(int **map, int y, int x);
@@ -156,6 +155,5 @@ t_queue     *element_queue(int **map);
 int         move_piece(int **map, int blank[2], int action);
 int         open_node(t_data *d, t_queue *node, t_queue **queue, t_queue **last, int id_heuristic);
 int         ft_distance(int **map, int (heuristic)(int **, int, int));
-
 
 #endif

@@ -12,6 +12,7 @@
 
 #include "n_puzzle.hpp"
 
+/* Free the memory allocated for the board */
 void ft_free_map(int **map, int size)
 {
     if (map)
@@ -25,6 +26,7 @@ void ft_free_map(int **map, int size)
     }
 }
 
+/* Free the memory allocated for the board */
 void        ft_free_position(t_goalPosition *map)
 {
     if (map)
@@ -38,6 +40,7 @@ void        ft_free_position(t_goalPosition *map)
     }
 }
 
+/* Free the memory allocated for the queue */
 void        ft_free_queue(t_queue *q)
 {
     t_queue     *tmp;
@@ -51,14 +54,3 @@ void        ft_free_queue(t_queue *q)
     }
 }
 
-void        ft_free_child(int ***child, int len)
-{
-    while (len)
-    {
-        len--;
-        if (child[len])
-            ft_free_map(child[len], g_size);
-
-    }
-    
-}

@@ -30,8 +30,6 @@ t_queue        *help_greedy(t_data *d)
     return (back);
 }
 
-
-
 int         greedy_search(t_data *d, int h_id)
 {
     t_queue     *tmp            = NULL;
@@ -72,6 +70,12 @@ int         greedy_search(t_data *d, int h_id)
     }
     if (d->curr)
         print_solution(d);
+    else if (!d->curr)
+    {
+        fprintf(stderr, "No solution found\n");
+        ft_free_queue(d->head);
+        return (_ERROR);
+    }
     ft_free_queue(d->head);
     return (_SUCCESS);
 }
@@ -104,9 +108,7 @@ int         a_star(t_data *d, int h_id)
 {
     t_queue     *tmp            = NULL;
     t_queue     *last           = NULL;
-    // t_queue     *curr          = d->curr;
     int         ret_open        = _SUCCESS;
-    // int         bound           = INT_MAX;
 
 
     while (d->curr)
@@ -138,6 +140,12 @@ int         a_star(t_data *d, int h_id)
     }
     if (d->curr)
         print_solution(d);
+    else if (!d->curr)
+    {
+        fprintf(stderr, "No solution found\n");
+        ft_free_queue(d->head);
+        return (_ERROR);
+    }
     ft_free_queue(d->head);
     return (_SUCCESS);
 }
