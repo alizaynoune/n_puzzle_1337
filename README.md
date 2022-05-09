@@ -14,11 +14,31 @@ python2 ./n-puzzle.py -s 4 > map
 ```
 
 # Usege
-* n `next stype`
+* ./n_puzzle `file` `algorithme` `distance` | python ./visul/visul.py
+## algorithme
+* -astar `A*`
+* -greedy `greedy shearch`
+## distance
+* -m `manhattan distance`
+* -e `euclidean distance`
+* -i `inverse distance`
+* -mp `missed place distance`
+## file
+```
+# This puzzle is solvable
+4 # map size
+ 6  0  7 11
+ 9  1  3  4
+13 10 14  5
+ 2 12 15  8
+```
+
+### keyboard usage
+* n `next step`
 * r `run app`
 * p `pause app`
 * q `quite`
 
 # review
-![](https://github.com/alizaynoune/n_puzzle/blob/main/images/n_puzzle.gif?raw=true)
+![](https://github.com/alizaynoune/n_puzzle_1337/blob/main/images/n_puzzle.gif?raw=true)
 
