@@ -86,7 +86,6 @@ t_queue     *help_star(t_data *d)
     t_queue     *back = d->curr;
     int         bound_h = d->curr->h;
     int         bound_g = d->curr->g;
-    int         bound = d->curr->h + d->curr->g;
 
     while (tmp)
     {
@@ -95,7 +94,6 @@ t_queue     *help_star(t_data *d)
             back = tmp;
             bound_h = tmp->h;
             bound_g = tmp->g;
-            bound   = tmp->h + tmp->g;
         }
         tmp = tmp->prev;
     }

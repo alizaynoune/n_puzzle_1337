@@ -1,14 +1,12 @@
-#!/usr/bin/env python3.9
+#!/usr/bin/env python
 
 import tkinter
 import sys
 import time
-import keyboard
-
 
 
 width = 1000
-height = 1000
+height = 700
 size = 0
 puzzle = []
 moves = 0
@@ -19,7 +17,7 @@ is_run = False
 curr_move = 0
 
 puzzle_width = 800
-puzzle_height = 1000
+puzzle_height = 700
 
 
 root = tkinter.Tk()
